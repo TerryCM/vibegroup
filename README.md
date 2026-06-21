@@ -88,12 +88,12 @@ git clone https://github.com/TerryCM/vibegroup-relay
 git clone https://github.com/TerryCM/vibegroup && (cd vibegroup && bun install)
 ```
 
-**1. A relay** — use the public **alpha instance** (`wss://vibegroup-relay.grayriver-52f1583a.eastus.azurecontainerapps.io/ws`), or self-host (see [`vibegroup-relay/DEPLOY.md`](https://github.com/TerryCM/vibegroup-relay/blob/main/DEPLOY.md)).
+**1. A relay** — use the public **alpha instance** (`wss://relay.vibegroup.sh/ws`), or self-host (see [`vibegroup-relay/DEPLOY.md`](https://github.com/TerryCM/vibegroup-relay/blob/main/DEPLOY.md)).
 
 **2. A room** — share the token with your friends out-of-band:
 
 ```bash
-curl -X POST https://vibegroup-relay.grayriver-52f1583a.eastus.azurecontainerapps.io/rooms
+curl -X POST https://relay.vibegroup.sh/rooms
 # → { "room": "rm_…", "token": "…" }
 ```
 

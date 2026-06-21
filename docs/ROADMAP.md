@@ -4,7 +4,7 @@ Status of the project and what's left. The MVP (encrypted ask/answer with a read
 
 ## Now — make it real
 
-- [x] **Deploy the relay** to a public host — live on Azure Container Apps (`wss://vibegroup-relay.grayriver-52f1583a.eastus.azurecontainerapps.io/ws`; see `vibegroup-relay/DEPLOY.md`).
+- [x] **Deploy the relay** to a public host — live on Azure Container Apps (`wss://relay.vibegroup.sh/ws`; see `vibegroup-relay/DEPLOY.md`).
 - [x] **Point a default relay URL** in the agent docs / config (set in the README quick-start).
 - [x] **Real-world end-to-end test** — two real Claude Code sessions, channel-mode, over the live Azure relay: one asks, the other's session wakes and answers from its own checkout, answer pushes back. WSS + E2E + routing all confirmed.
 - [ ] **Two physical machines on two networks** — confirm the same flow off a single host (NAT/firewall traversal).
