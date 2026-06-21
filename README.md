@@ -169,7 +169,7 @@ bun install
 bun test
 ```
 
-Design docs and implementation plans live under [`docs/`](docs/superpowers).
+The roadmap and real-world testing checklist live in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
