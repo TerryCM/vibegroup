@@ -1,0 +1,21 @@
+packages/relay/src/rooms.ts
+  s_e1b8c7a7c37b85::t_8dd576d49b6f99 1-35
+packages/relay/test/rooms.test.ts
+  s_e1b8c7a7c37b85::t_25ae62aed7359b 1-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "0fa9d682d22aaa34737bb133233787aea2f33a06",
+  "prompts": {},
+  "sessions": {
+    "s_e1b8c7a7c37b85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d76dab22-5e3e-4718-958e-d84684eb9e16",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Terry Cruz Melo <terry@cruz.pe>"
+    }
+  }
+}
