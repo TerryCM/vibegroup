@@ -1,0 +1,23 @@
+src/agentSession.ts
+  s_e1b8c7a7c37b85::t_bac3c4d47e1119 1-28
+docs/superpowers/plans/2026-06-21-vibegroup-agent-mcp.md
+  s_e1b8c7a7c37b85::t_a1d4df2b29e14d 1-596
+test/agentSession.integration.test.ts
+  s_e1b8c7a7c37b85::t_0f5465419373cf 1-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "70e2b3f18dd142bf316bcc5c1e4e93197b3ea03f",
+  "prompts": {},
+  "sessions": {
+    "s_e1b8c7a7c37b85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d76dab22-5e3e-4718-958e-d84684eb9e16",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Terry Cruz Melo <terry@cruz.pe>"
+    }
+  }
+}
