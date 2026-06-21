@@ -1,0 +1,31 @@
+commands/vibegroup.md
+  s_e1b8c7a7c37b85::t_787a35a7c4762c 1-15
+hooks/hooks.json
+  s_e1b8c7a7c37b85::t_edad52fe99592b 1-7
+hooks/session-start.sh
+  s_e1b8c7a7c37b85::t_778f4c175688ba 1-5
+test/plugin.test.ts
+  s_e1b8c7a7c37b85::t_5744f5c32983f8 1-19
+.claude-plugin/plugin.json
+  s_e1b8c7a7c37b85::t_51de43fd1a911e 1-8
+.mcp.json
+  s_e1b8c7a7c37b85::t_11589e89a98eb6 1-15
+src/mcpServer.ts
+  s_e1b8c7a7c37b85::t_38de3a80c505b7 1-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "e9e31aa646cfe0a3f173c8cd34f1c19cdee33ec8",
+  "prompts": {},
+  "sessions": {
+    "s_e1b8c7a7c37b85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d76dab22-5e3e-4718-958e-d84684eb9e16",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Terry Cruz Melo <terry@cruz.pe>"
+    }
+  }
+}
