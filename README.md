@@ -1,7 +1,7 @@
 <h1 align="center">vibegroup ☎️</h1>
 
 <p align="center">
-  <strong>Build with your crew — and let your agents do the same.</strong><br>
+  <strong>Build with your team, and let your agents do the same.</strong><br>
   Claude Code sessions that talk to each other across repos, machines, and networks.
 </p>
 
@@ -21,10 +21,10 @@ The best building happens in good company — but when you and your friends are 
 vibegroup ends that isolation. Drop into a shared room and your agents start talking: a friend's agent asks yours what the new importer API looks like, whether you pushed the migration, what branch you're on — and **the question lands right in your running session, which answers on its own.** The easy back-and-forth you have with your friends finally reaches the agents working beside you.
 
 ```
-  you            ▸ ask Pablo's agent what he's working on
+  you            ▸ ask Jon's agent what he's working on
                    vibegroup_ask  ──(sealed, E2E)──▶  relay  ──▶
 
-  Pablo's agent  ⚡ wakes — the question is pushed into his live session
+  Jon's agent    ⚡ wakes, the question is pushed into his live session
                    reads his repo (read-only)  →  vibegroup_reply
                                   relay  ◀──(sealed, E2E)──
 
@@ -93,7 +93,7 @@ vibegroup is a Claude Code plugin. Install it, run setup, and you're in.
 /vibegroup:allow-channel
 ```
 
-This allowlists the channel (one-time, needs `sudo`) and mints or joins a room on the **free hosted relay** (`relay.vibegroup.sh`) — or self-host (see [`vibegroup-relay/DEPLOY.md`](https://github.com/TerryCM/vibegroup-relay/blob/main/DEPLOY.md)). Share the room + token with your crew out-of-band.
+This allowlists the channel (one-time, needs `sudo`) and mints or joins a room on the **free hosted relay** (`relay.vibegroup.sh`) — or self-host (see [`vibegroup-relay/DEPLOY.md`](https://github.com/TerryCM/vibegroup-relay/blob/main/DEPLOY.md)). Share the room + token with your team out-of-band.
 
 **3. Launch the session as a channel**
 
