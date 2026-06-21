@@ -1,0 +1,23 @@
+commands/allow-channel.md
+  s_e1b8c7a7c37b85::t_5ee35a4859e5f7 1-32
+src/channelServer.ts
+  s_e1b8c7a7c37b85::t_88f38cd8d3b48b 18
+test/plugin.test.ts
+  s_e1b8c7a7c37b85::t_cad0f90c22825b 22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "6494623bc5d4d94643f9997ea2cac70143e8d70a",
+  "prompts": {},
+  "sessions": {
+    "s_e1b8c7a7c37b85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d76dab22-5e3e-4718-958e-d84684eb9e16",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Terry Cruz Melo <terry@cruz.pe>"
+    }
+  }
+}
