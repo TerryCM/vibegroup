@@ -1,0 +1,37 @@
+docs/managed-settings.example.json
+  s_e1b8c7a7c37b85::t_86bbf146360799 1-6
+src/channelServer.ts
+  s_e1b8c7a7c37b85::t_a2caa0764d88a7 1-2,4,6-13,16-22
+test/plugin.test.ts
+  s_e1b8c7a7c37b85::t_7fb7ba928aa3b1 9,13,16-20,22
+test/config.test.ts
+  s_e1b8c7a7c37b85::t_ec25798bd0cdf5 1-56
+src/config.ts
+  s_e1b8c7a7c37b85::t_8f8ca10f926575 1-56
+.mcp.json
+  s_e1b8c7a7c37b85::t_ba1d2b269b2c6a 5
+dist/channel.js
+  s_e1b8c7a7c37b85::t_c277377533139f 1-16910
+package.json
+  s_e1b8c7a7c37b85::t_33a920b27c6220 6,8-9
+bin/vibegroup
+  s_e1b8c7a7c37b85::t_af86b2983129ca 1-77
+commands/setup.md
+  s_e1b8c7a7c37b85::t_1a7a6948e83a1c 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "5466a47244fc5f3572137724274d217cb0e28517",
+  "prompts": {},
+  "sessions": {
+    "s_e1b8c7a7c37b85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d76dab22-5e3e-4718-958e-d84684eb9e16",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Terry Cruz Melo <terry@cruz.pe>"
+    }
+  }
+}
