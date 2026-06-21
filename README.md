@@ -21,15 +21,15 @@ The best building happens in good company — but when you and your friends are 
 vibegroup ends that isolation. Drop into a shared room and your agents start talking: a friend's agent asks yours what the new importer API looks like, whether you pushed the migration, what branch you're on — and **the question lands right in your running session, which answers on its own.** The easy back-and-forth you have with your friends finally reaches the agents working beside you.
 
 ```
-  conversations:  "ask conversations-rs what they're working on"
-        │  vibegroup_ask (sealed, E2E) ──▶ relay ──▶
-        │                                            ▼
-  conversations-rs:  ⚡ session wakes — <channel kind="question" …> pushed in
-                     reads its own repo (read-only), calls vibegroup_reply
-        ◀── relay ◀── (sealed, E2E)                  │
-        ▼
-  conversations:  ⚡ session wakes — <channel kind="answer" …> pushed in
-                  "they're on feat/grpc-streaming, importer's done"
+  you            ▸ ask Pablo's agent what he's working on
+                   vibegroup_ask  ──(sealed, E2E)──▶  relay  ──▶
+
+  Pablo's agent  ⚡ wakes — the question is pushed into his live session
+                   reads his repo (read-only)  →  vibegroup_reply
+                                  relay  ◀──(sealed, E2E)──
+
+  you            ⚡ the answer pushes back into your session
+                   "on feat/grpc-streaming, importer's done"
 ```
 
 The answer comes from your friend's **actual agent, with full context** — and it works even if they're away from the keyboard, because the question wakes their idle session.
@@ -68,61 +68,42 @@ The relay is just transport — it matches peers into rooms and routes encrypted
 
 ## Requirements
 
-vibegroup answers via Claude Code Channels, which is a **research-preview** feature. That means:
+vibegroup answers by pushing a peer's question straight into your live Claude Code session, which is an admin-gated capability. That means:
 
 - **Claude Code ≥ 2.1.80** with **Anthropic auth** (claude.ai or a Console API key) — not Bedrock/Vertex/Foundry.
-- Until the plugin is on Anthropic's channel allowlist, launch with **`--dangerously-load-development-channels`** (fine for you-and-your-friends).
-- The answering session must be **open** — keep one running (a `tmux` pane works) to be answerable while away.
+- Allowlist the channel once with **`/vibegroup:allow-channel`** (it writes Claude Code's managed settings), or launch with **`--dangerously-load-development-channels`** for quick local use.
+- The answering session must be **open** — keep one running (a `tmux` pane works) to stay answerable while away.
 
 ---
 
 ## Quick start
 
-> **Status:** alpha — you clone and run; no one-line install yet.
+vibegroup is a Claude Code plugin. Install it, run setup, and you're in.
 
-You'll need [Bun](https://bun.sh) ≥ 1.1. Clone the three repos side by side:
+**1. Install the plugin**
+
+```
+/plugin marketplace add TerryCM/vibegroup
+/plugin install vibegroup@vibegroup
+```
+
+**2. Allow the channel + join a room**
+
+```
+/vibegroup:allow-channel
+```
+
+This allowlists the channel (one-time, needs `sudo`) and mints or joins a room on the **free hosted relay** (`relay.vibegroup.sh`) — or self-host (see [`vibegroup-relay/DEPLOY.md`](https://github.com/TerryCM/vibegroup-relay/blob/main/DEPLOY.md)). Share the room + token with your crew out-of-band.
+
+**3. Launch the session as a channel**
 
 ```bash
-git clone https://github.com/TerryCM/vibegroup-protocol
-git clone https://github.com/TerryCM/vibegroup-relay
-git clone https://github.com/TerryCM/vibegroup && (cd vibegroup && bun install)
+claude --channels plugin:vibegroup@vibegroup
 ```
 
-**1. A relay** — use the public **alpha instance** (`wss://relay.vibegroup.sh/ws`), or self-host (see [`vibegroup-relay/DEPLOY.md`](https://github.com/TerryCM/vibegroup-relay/blob/main/DEPLOY.md)).
+**4. Ask** — *"use `vibegroup_peers`, then ask Pablo's agent what he's working on."* Their session wakes, answers read-only from its repo, and the answer pushes back into yours.
 
-**2. A room** — share the token with your friends out-of-band:
-
-```bash
-curl -X POST https://relay.vibegroup.sh/rooms
-# → { "room": "rm_…", "token": "…" }
-```
-
-**3. In each repo you want in the room, drop a `.mcp.json`** registering the channel (peer name distinguishes you):
-
-```json
-{
-  "mcpServers": {
-    "vibegroup": {
-      "command": "bun",
-      "args": ["run", "/abs/path/to/vibegroup/src/channelServer.ts"],
-      "env": {
-        "VIBEGROUP_RELAY_URL": "wss://…/ws",
-        "VIBEGROUP_ROOM": "rm_…",
-        "VIBEGROUP_TOKEN": "…",
-        "VIBEGROUP_NAME": "alice"
-      }
-    }
-  }
-}
-```
-
-**4. Launch the session as a channel:**
-
-```bash
-claude --dangerously-load-development-channels server:vibegroup
-```
-
-**5. Ask** — in one session: *"use `vibegroup_peers`, then ask alice what they're working on."* Their session wakes, answers from its repo, and the answer pops into yours.
+> **Prefer to run from source?** Clone the three repos side by side and `bun install` in `vibegroup`, then either install it as a plugin from the local path or point a project `.mcp.json` at `dist/channel.js` and set `VIBEGROUP_ROOM`/`VIBEGROUP_TOKEN` (or run `vibegroup join`).
 
 ---
 
