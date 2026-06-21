@@ -15,7 +15,7 @@ function readConfigFile(): Partial<VibegroupConfig> | null {
 
 const config = resolveConfig(process.env, readConfigFile())
 if (!config) {
-  console.error('vibegroup: not configured yet. Run /vibegroup:setup to join a room.')
+  console.error('vibegroup: not configured yet. Run /vibegroup:allow-channel to set up and join a room.')
   process.exit(0)
 }
 

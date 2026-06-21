@@ -19,6 +19,6 @@ test('the channel bundle is committed so the plugin runs without an install step
 
 test('the slash commands and hook files exist', async () => {
   expect(await Bun.file('commands/vibegroup.md').exists()).toBe(true)
-  expect(await Bun.file('commands/setup.md').exists()).toBe(true)
+  expect(await Bun.file('commands/allow-channel.md').exists()).toBe(true)
   expect(await Bun.file('hooks/hooks.json').exists()).toBe(true)
 })

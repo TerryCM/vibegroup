@@ -16904,7 +16904,7 @@ function readConfigFile() {
 }
 var config2 = resolveConfig(process.env, readConfigFile());
 if (!config2) {
-  console.error("vibegroup: not configured yet. Run /vibegroup:setup to join a room.");
+  console.error("vibegroup: not configured yet. Run /vibegroup:allow-channel to set up and join a room.");
   process.exit(0);
 }
 await startChannel(config2);

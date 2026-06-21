@@ -1,12 +1,12 @@
 ---
-description: Set up vibegroup — allowlist the channel (one-time, needs sudo) and join a room.
+description: Allow the vibegroup channel on this machine (one-time, needs sudo), then join a room.
 ---
 
-Set up vibegroup so this Claude Code session can talk to peer agents. The `vibegroup` CLI is on your PATH (provided by this plugin). Run these steps and report the result.
+Make vibegroup runnable as a Claude Code channel on this machine, then join a room. The `vibegroup` CLI is on your PATH (provided by this plugin). Run these steps and report the result.
 
-## 1. Allowlist the channel (one-time per machine, needs sudo)
+## 1. Allow the channel (one-time per machine, needs sudo)
 
-Channels are admin-gated. This merges the vibegroup entry into Claude Code's managed settings **without clobbering existing keys**:
+Channels are admin-gated, so this merges the vibegroup entry into Claude Code's managed settings (`channelsEnabled: true` + `allowedChannelPlugins`) **without clobbering existing keys**:
 
 ```
 vibegroup allowlist-json | sudo tee "$(vibegroup allowlist-path)" >/dev/null
