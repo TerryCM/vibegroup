@@ -1,0 +1,22 @@
+README.md
+  s_e1b8c7a7c37b85::t_00b885db7f512e 20
+  s_e1b8c7a7c37b85::t_f4f036e71f98b5 19,21
+  s_e1b8c7a7c37b85::t_b3cf948aebe4c9 43
+  s_e1b8c7a7c37b85::t_24326e995ef9c5 4-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "0fead117a5d48af67482a8498f09608f09730027",
+  "prompts": {},
+  "sessions": {
+    "s_e1b8c7a7c37b85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d76dab22-5e3e-4718-958e-d84684eb9e16",
+        "model": "unknown"
+      },
+      "human_author": "Terry Cruz Melo <terry@cruz.pe>"
+    }
+  }
+}
