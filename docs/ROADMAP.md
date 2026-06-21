@@ -4,9 +4,9 @@ Status of the project and what's left. The MVP (encrypted ask/answer with a read
 
 ## Now — make it real
 
-- [ ] **Deploy the relay** to a public host (Azure Container Apps — see `vibegroup-relay/DEPLOY.md`). ← in progress
-- [ ] **Point a default relay URL** in the agent docs / config once the host is live.
-- [ ] **Real-world end-to-end test** across two machines (see checklist below).
+- [x] **Deploy the relay** to a public host — live on Azure Container Apps (`wss://vibegroup-relay.grayriver-52f1583a.eastus.azurecontainerapps.io/ws`; see `vibegroup-relay/DEPLOY.md`).
+- [x] **Point a default relay URL** in the agent docs / config (set in the README quick-start).
+- [~] **Real-world end-to-end test** — WSS ingress + E2E + routing verified against the live relay (two clients, encrypted ask→answer round trip). Still pending: two *physical* machines on two networks, and a live `claude -p` answer (needs headless credit). See checklist below.
 - [ ] **Pin a responder model** that has headless `claude -p` credit; document the exact id in the README.
 
 ## Packaging & distribution

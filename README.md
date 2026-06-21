@@ -86,7 +86,7 @@ git clone https://github.com/TerryCM/vibegroup-relay
 git clone https://github.com/TerryCM/vibegroup
 ```
 
-**2. Run the relay** (host this once, somewhere both peers can reach):
+**2. Run the relay** — or skip this and point at the public **alpha instance** (`wss://vibegroup-relay.grayriver-52f1583a.eastus.azurecontainerapps.io/ws`; see [`vibegroup-relay/DEPLOY.md`](https://github.com/TerryCM/vibegroup-relay/blob/main/DEPLOY.md)). To self-host:
 
 ```bash
 cd vibegroup-relay && bun install && PORT=8799 RELAY_SECRET=$(openssl rand -hex 16) bun run start
@@ -103,7 +103,7 @@ curl -X POST http://localhost:8799/rooms
 
 ```bash
 cd vibegroup && bun install
-export VIBEGROUP_RELAY_URL=ws://your-relay-host:8799/ws
+export VIBEGROUP_RELAY_URL=wss://vibegroup-relay.grayriver-52f1583a.eastus.azurecontainerapps.io/ws  # alpha instance, or your own
 export VIBEGROUP_ROOM=rm_…
 export VIBEGROUP_TOKEN=…
 export VIBEGROUP_NAME=alice-lib       # how peers see you
