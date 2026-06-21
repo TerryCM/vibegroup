@@ -1,0 +1,77 @@
+#!/usr/bin/env bun
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
+import { homedir } from 'os'
+import { dirname } from 'path'
+import {
+  configPath,
+  managedSettingsPath,
+  mergeManagedSettings,
+  DEFAULT_RELAY_HTTP,
+  DEFAULT_RELAY_WS,
+  type VibegroupConfig,
+} from '../src/config'
+
+const args = process.argv.slice(2)
+const cmd = args[0]
+
+function flag(name: string): string | undefined {
+  const i = args.indexOf(`--${name}`)
+  return i >= 0 ? args[i + 1] : undefined
+}
+
+function readJson(path: string): Record<string, unknown> | null {
+  try {
+    if (existsSync(path)) return JSON.parse(readFileSync(path, 'utf8'))
+  } catch {
+    /* missing or invalid — treat as absent */
+  }
+  return null
+}
+
+async function join() {
+  const positional = args.slice(1).filter((a) => !a.startsWith('--'))
+  const name = flag('name') ?? 'vibegroup-agent'
+  const url = flag('url') ?? DEFAULT_RELAY_WS
+  let room = positional[0]
+  let token = positional[1]
+
+  if (!room || !token) {
+    const http = flag('relay-http') ?? DEFAULT_RELAY_HTTP
+    const res = await fetch(`${http}/rooms`, { method: 'POST' })
+    if (!res.ok) {
+      console.error(`vibegroup: could not mint a room (HTTP ${res.status})`)
+      process.exit(1)
+    }
+    const minted = (await res.json()) as { room: string; token: string }
+    room = minted.room
+    token = minted.token
+  }
+
+  const cfg: VibegroupConfig = { url, room, token, name }
+  const path = configPath(homedir())
+  mkdirSync(dirname(path), { recursive: true })
+  writeFileSync(path, JSON.stringify(cfg, null, 2) + '\n')
+
+  console.log(`joined as "${name}"`)
+  console.log(`share with your crew →  room: ${room}   token: ${token}`)
+  console.log(`config written to ${path}`)
+}
+
+switch (cmd) {
+  case 'join':
+    await join()
+    break
+  case 'allowlist-json':
+    console.log(JSON.stringify(mergeManagedSettings(readJson(managedSettingsPath(process.platform))), null, 2))
+    break
+  case 'allowlist-path':
+    console.log(managedSettingsPath(process.platform))
+    break
+  case 'show': {
+    const cfg = readJson(configPath(homedir()))
+    console.log(cfg ? `room: ${cfg.room}\nname: ${cfg.name}\nrelay: ${cfg.url}` : 'not configured (run: vibegroup join)')
+    break
+  }
+  default:
+    console.log('usage: vibegroup <join|allowlist-json|allowlist-path|show>')
+}

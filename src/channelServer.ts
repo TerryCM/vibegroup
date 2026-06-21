@@ -1,12 +1,22 @@
+import { existsSync, readFileSync } from 'fs'
+import { homedir } from 'os'
 import { startChannel } from './channel'
+import { resolveConfig, configPath, type VibegroupConfig } from './config'
 
-const env = process.env
-const url = env.VIBEGROUP_RELAY_URL
-const room = env.VIBEGROUP_ROOM
-const token = env.VIBEGROUP_TOKEN
-if (!url || !room || !token) {
-  console.error('vibegroup: set VIBEGROUP_RELAY_URL, VIBEGROUP_ROOM, VIBEGROUP_TOKEN')
-  process.exit(1)
+function readConfigFile(): Partial<VibegroupConfig> | null {
+  const path = configPath(homedir())
+  try {
+    if (existsSync(path)) return JSON.parse(readFileSync(path, 'utf8'))
+  } catch {
+    /* unreadable/invalid config — treat as absent */
+  }
+  return null
 }
 
-await startChannel({ url, room, token, name: env.VIBEGROUP_NAME ?? 'vibegroup-agent' })
+const config = resolveConfig(process.env, readConfigFile())
+if (!config) {
+  console.error('vibegroup: not configured yet. Run /vibegroup:setup to join a room.')
+  process.exit(0)
+}
+
+await startChannel(config)

@@ -3,9 +3,10 @@
   "version": "0.0.1",
   "type": "module",
   "main": "src/index.ts",
-  "bin": { "vibegroup": "./src/cli.ts" },
+  "bin": { "vibegroup": "./bin/vibegroup" },
   "scripts": {
-    "test": "bun test"
+    "test": "bun test",
+    "build": "bun build src/channelServer.ts --target bun --outfile dist/channel.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
