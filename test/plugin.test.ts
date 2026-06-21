@@ -10,7 +10,7 @@ test('.mcp.json registers the vibegroup server via bun', async () => {
   const m = await Bun.file('.mcp.json').json()
   expect(m.mcpServers.vibegroup).toBeDefined()
   expect(m.mcpServers.vibegroup.command).toBe('bun')
-  expect(m.mcpServers.vibegroup.args.join(' ')).toContain('src/mcpServer.ts')
+  expect(m.mcpServers.vibegroup.args.join(' ')).toContain('src/channelServer.ts')
 })
 
 test('the slash command and hook files exist', async () => {
