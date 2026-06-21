@@ -1,0 +1,40 @@
+docs/superpowers/specs/2026-06-21-vibegroup-design.md
+  s_e1b8c7a7c37b85::t_92fa08572519c8 1,3,5-12,14,16,18,20-25,27-32,35-36,43-45,47-59,62-105,107,109,111,113,115-117,119,121-125
+  s_e1b8c7a7c37b85::t_2eff3e2ea62b4e 2,4,13,15,17,19,26,33-34,37-42,46,60-61,106,108,110,112,114,118,120
+package.json
+  s_e1b8c7a7c37b85::t_18702da5534200 1-5
+packages/protocol/package.json
+  s_e1b8c7a7c37b85::t_f23c34885e3a49 1-7
+packages/protocol/test/ids.test.ts
+  s_e1b8c7a7c37b85::t_d055930c47c677 1-14
+packages/protocol/src/ids.ts
+  s_e1b8c7a7c37b85::t_b3eb7aacdbb1a7 1-8
+tsconfig.base.json
+  s_e1b8c7a7c37b85::t_96d86ea91a3d3f 1-11
+packages/protocol/src/envelope.ts
+  s_e1b8c7a7c37b85::t_0d41af3a431284 1-50
+packages/protocol/src/index.ts
+  s_e1b8c7a7c37b85::t_c6e24facf759fe 1-2
+packages/protocol/test/envelope.test.ts
+  s_e1b8c7a7c37b85::t_c62395ab4bbc30 1-31
+docs/superpowers/plans/2026-06-21-vibegroup-relay.md
+  s_e1b8c7a7c37b85::t_225b64be41b814 1-1312
+.gitignore
+  s_e1b8c7a7c37b85::t_6ebbe56c926d8f 1-3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "24275969f28e66ab5adcaccb4f3a6a2de1da17d7",
+  "prompts": {},
+  "sessions": {
+    "s_e1b8c7a7c37b85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d76dab22-5e3e-4718-958e-d84684eb9e16",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Terry Cruz Melo <terry@cruz.pe>"
+    }
+  }
+}
