@@ -43,11 +43,13 @@ test('full encrypted ask -> answer round trip', async () => {
   await alice.connect()
   await bob.connect()
 
-  bob.onQuestion(async (q) => { await bob.answer(q.from, q.qid, `answering: ${q.question}`) })
+  let answered: Promise<void> | undefined
+  bob.onQuestion((q) => { answered = bob.answer(q.from, q.qid, `answering: ${q.question}`) })
   const gotAnswer = new Promise<{ from: string; qid: string; answer: string }>((r) => alice.onAnswer(r))
 
   const qid = await alice.ask(bob.peerId!, 'did you finish the importer?')
   const a = await gotAnswer
+  await answered   // let bob's answer ack settle before tearing the sockets down
 
   expect(a.qid).toBe(qid)
   expect(a.from).toBe(bob.peerId)

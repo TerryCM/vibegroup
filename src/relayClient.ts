@@ -29,8 +29,20 @@ export class RelayClient {
       ws.addEventListener('open', () =>
         this.send({ kind: 'join', resumeToken: this.resumeToken, body: { room: this.opts.room, token: this.opts.token, name: this.opts.name } }))
       ws.addEventListener('message', (ev) => this.dispatch(parseEnvelope(String(ev.data))))
-      ws.addEventListener('error', () => reject(new Error('websocket error')))
+      ws.addEventListener('error', () => this.failPending(new Error('websocket error')))
+      ws.addEventListener('close', () => this.failPending(new Error('websocket closed')))
     })
+  }
+
+  // Settle every in-flight waiter so callers (and the MCP tool handlers behind
+  // them) never hang when the socket drops before a reply arrives.
+  private failPending(err: Error): void {
+    this.joinWaiter?.reject(err)
+    this.joinWaiter = undefined
+    for (const w of this.ackWaiters.values()) w.reject(err)
+    this.ackWaiters.clear()
+    for (const resolve of this.peersWaiters) resolve([])
+    this.peersWaiters = []
   }
 
   private send(e: Partial<Envelope> & Pick<Envelope, 'kind'>): void {
