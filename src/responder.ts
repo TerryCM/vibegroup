@@ -34,9 +34,15 @@ export function createResponder(opts: ResponderOptions): Responder {
 }
 
 export function attachResponder(client: RelayClient, responder: Responder): void {
+  // Fire-and-forget handler: swallow transport failures (e.g. the socket dropping
+  // mid-send) so a failed delivery never surfaces as an unhandled rejection.
   client.onQuestion(async ({ from, qid, question }) => {
-    const text = await responder.handle(question)
-    await client.answer(from, qid, text)
+    try {
+      const text = await responder.handle(question)
+      await client.answer(from, qid, text)
+    } catch {
+      /* peer gone / socket closed — nothing to deliver to */
+    }
   })
 }
 
