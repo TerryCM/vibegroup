@@ -1,4 +1,5 @@
 import { redactSecrets } from './redact'
+import type { RelayClient } from './relayClient'
 
 export interface AnswerEngine {
   answer(question: string, opts: { cwd: string }): Promise<string>
@@ -29,4 +30,11 @@ export function createResponder(opts: ResponderOptions): Responder {
       return redactSecrets(raw, max)
     },
   }
+}
+
+export function attachResponder(client: RelayClient, responder: Responder): void {
+  client.onQuestion(async ({ from, qid, question }) => {
+    const text = await responder.handle(question)
+    await client.answer(from, qid, text)
+  })
 }
