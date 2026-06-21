@@ -1,0 +1,21 @@
+packages/relay/src/presence.ts
+  s_e1b8c7a7c37b85::t_3bf2bc7cc799e1 1-31
+packages/relay/test/presence.test.ts
+  s_e1b8c7a7c37b85::t_4d67ddcacddaa1 1-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "92d63e7b9127be7d38feffbc90bd8d3be6db8d53",
+  "prompts": {},
+  "sessions": {
+    "s_e1b8c7a7c37b85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d76dab22-5e3e-4718-958e-d84684eb9e16",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Terry Cruz Melo <terry@cruz.pe>"
+    }
+  }
+}
