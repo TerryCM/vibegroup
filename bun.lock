@@ -1,0 +1,24 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "@vibegroup/agent",
+      "dependencies": {
+        "@vibegroup/protocol": "file:../vibegroup-protocol",
+      },
+      "devDependencies": {
+        "@vibegroup/relay": "file:../vibegroup-relay",
+      },
+    },
+  },
+  "packages": {
+    "@vibegroup/protocol": ["@vibegroup/protocol@file:../vibegroup-protocol", { "dependencies": { "zod": "^3.23.8" } }],
+
+    "@vibegroup/relay": ["@vibegroup/relay@file:../vibegroup-relay", { "dependencies": { "@vibegroup/protocol": "file:../vibegroup-protocol" } }],
+
+    "zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
+
+    "@vibegroup/relay/@vibegroup/protocol": ["@vibegroup/protocol@file:../vibegroup-protocol", {}],
+  }
+}

@@ -1,5 +1,9 @@
 {
-  "name": "vibegroup",
-  "private": true,
-  "workspaces": ["packages/*"]
+  "name": "@vibegroup/agent",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": { "test": "bun test" },
+  "dependencies": { "@vibegroup/protocol": "file:../vibegroup-protocol" },
+  "devDependencies": { "@vibegroup/relay": "file:../vibegroup-relay" }
 }
