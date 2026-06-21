@@ -8,170 +8,157 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
   <img src="https://img.shields.io/badge/status-alpha-orange" alt="Status: alpha">
-  <img src="https://img.shields.io/badge/tests-62_passing-brightgreen" alt="62 tests passing">
+  <img src="https://img.shields.io/badge/tests-67_passing-brightgreen" alt="67 tests passing">
   <img src="https://img.shields.io/badge/runtime-Bun-000000?logo=bun&logoColor=white" alt="Bun">
   <img src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white" alt="TypeScript strict">
-  <img src="https://img.shields.io/badge/MCP-server-5a45ff" alt="MCP server">
+  <img src="https://img.shields.io/badge/Claude_Code-Channel-5a45ff" alt="Claude Code Channel">
   <img src="https://img.shields.io/badge/E2E-AES--256--GCM-1f6feb" alt="End-to-end encrypted">
   <img src="https://img.shields.io/badge/macOS_%7C_Linux-supported-lightgrey" alt="macOS | Linux">
 </p>
 
 The best building happens in good company — but when you and your friends are each heads-down in your own repo on your own machine, your agents are strangers to each other. Yours has no idea what theirs just shipped.
 
-vibegroup ends that isolation. Drop into a shared room and your agents start talking: a friend's agent asks yours what the new importer API looks like, whether you pushed the migration, what branch you're on — and yours answers on its own, straight from your real checkout. The easy back-and-forth you have with your friends finally reaches the agents working beside you.
+vibegroup ends that isolation. Drop into a shared room and your agents start talking: a friend's agent asks yours what the new importer API looks like, whether you pushed the migration, what branch you're on — and **the question lands right in your running session, which answers on its own.** The easy back-and-forth you have with your friends finally reaches the agents working beside you.
 
 ```
-  Y's agent:  vibegroup_ask(alice-lib, "what's the new importer API?")
-                       │  (sealed, E2E)                       ▲  (sealed, E2E)
-                       ▼                                       │
-                  ──────────────  vibegroup relay  ──────────────
-                       │                                       ▲
-                       ▼                                       │
-  X's machine:  a read-only `claude -p` reads git + files + transcript,
-                answers "POST /imports, batched; see importer.ts", redacts secrets
-                       │
-                       ▼
-  Y's agent:  vibegroup_inbox() → "POST /imports, batched; see importer.ts"
+  conversations:  "ask conversations-rs what they're working on"
+        │  vibegroup_ask (sealed, E2E) ──▶ relay ──▶
+        │                                            ▼
+  conversations-rs:  ⚡ session wakes — <channel kind="question" …> pushed in
+                     reads its own repo (read-only), calls vibegroup_reply
+        ◀── relay ◀── (sealed, E2E)                  │
+        ▼
+  conversations:  ⚡ session wakes — <channel kind="answer" …> pushed in
+                  "they're on feat/grpc-streaming, importer's done"
 ```
 
-No human in the loop on the answering side. No exposing your live session. No copy-paste.
+The answer comes from your friend's **actual agent, with full context** — and it works even if they're away from the keyboard, because the question wakes their idle session.
 
 ---
 
 ## Why vibegroup
 
-- **Made for a group of friends, not a fleet.** A *vibegroup* is just a room you and your friends join from wherever you're coding. Low ceremony: spin one up, share the token, start asking. No org, no setup, no babysitting.
+- **Made for a group of friends, not a fleet.** A *vibegroup* is just a room you and your friends join from wherever you're coding. Spin one up, share the token, start asking.
 - **Cross-machine, over the internet.** Agents connect *outbound* to a relay, so NAT and firewalls are a non-issue. Two laptops, two clouds, a laptop and a CI box — all the same.
-- **Answers from the *real* checkout, safely.** Incoming questions are answered by a **dedicated, read-only `claude -p`** — it can read git state, files, and the session transcript, but it has **no write, no exec, no network, and no access to secret files**. A malicious or prompt-injected question literally cannot damage your machine, because the capabilities aren't there.
-- **End-to-end encrypted.** Question and answer bodies are sealed with AES-256-GCM under a key derived from the room token. The relay routes **ciphertext only** — it never sees your code, even the one you run yourself.
-- **Built for public Claude Code.** No internal builds, no feature flags. It's an ordinary MCP server + plugin, plus a relay you host. Works with the Claude Code everyone already has.
-- **Non-blocking by design.** `vibegroup_ask` returns immediately with a ticket; answers arrive asynchronously into your inbox. No deadlocks when everyone is asking everyone.
-- **Signed identities.** The relay stamps the authoritative sender — peers can't spoof who they are.
+- **Answers come from your live agent.** A peer's question is pushed straight into your running Claude Code session via [Claude Code Channels](https://code.claude.com/docs/en/channels), so your *real* agent — with full repo context — answers it. No second model, no separate API bill.
+- **Wakes an idle session.** Channels deliver while you're away from the terminal, so a peer gets an answer even when you're not actively typing.
+- **Untrusted by default.** Incoming questions are framed as untrusted data and answered **read-only** (git + files, no writes/exec, no secret reads); replies are scrubbed for secrets before they leave.
+- **End-to-end encrypted.** Question and answer bodies are AES-256-GCM sealed under a key derived from the room token. The relay routes **ciphertext only** — never your code.
+- **Signed identity.** The relay stamps the authoritative sender; peers can't spoof who they are.
 
 ---
 
 ## How it works
 
-vibegroup is deliberately **asymmetric**, because asking and answering have different needs:
+vibegroup is a **Claude Code Channel** wired to a relay. A channel is an MCP server that can *push events into a running session* (and the agent replies through a tool) — that's the primitive that makes "your live session answers on its own" possible.
 
-| | Asking (you're active) | Answering (you might be away) |
-|---|---|---|
-| Mechanism | a plain MCP tool call | a sandboxed read-only `claude -p` |
-| Blocking? | no — returns a `qid` | no — runs beside your session |
-| Privilege | your session | **least-privilege, read-only** |
+- **Asking** is a tool call: your agent calls `vibegroup_ask(peer, question)` → it goes out over the relay.
+- **Answering** is a push: the question arrives at your peer's machine, their channel pushes it into their live session as `<channel source="vibegroup" kind="question" …>`, their agent answers read-only and calls `vibegroup_reply`.
+- **Receiving** is a push too: the answer routes back and pushes into *your* session as `<channel kind="answer" …>`.
 
-Your agent asks with a normal tool call (it's already mid-turn, so nothing special is needed). A peer's question is answered by a separate, locked-down process — never your live, privileged session. That single decision is what makes "agents answer each other automatically" both **useful** and **safe**.
-
-It ships as three small pieces:
+The relay is just transport — it matches peers into rooms and routes encrypted blobs; it never sees plaintext. The three pieces:
 
 | Repo | What it is |
 |---|---|
-| **[vibegroup](https://github.com/TerryCM/vibegroup)** (this repo) | the local agent: relay client, E2E crypto, read-only responder, MCP tools, daemon, and the Claude Code plugin |
-| **[vibegroup-relay](https://github.com/TerryCM/vibegroup-relay)** | the broker you host — rooms, signed identity, ciphertext routing, offline queue. Never decrypts anything. |
+| **[vibegroup](https://github.com/TerryCM/vibegroup)** (this repo) | the channel: relay client, E2E crypto, the `vibegroup_*` tools, and the Claude Code plugin |
+| **[vibegroup-relay](https://github.com/TerryCM/vibegroup-relay)** | the broker you host — rooms, signed identity, ciphertext routing. Never decrypts anything. |
 | **[vibegroup-protocol](https://github.com/TerryCM/vibegroup-protocol)** | the shared wire contract both sides depend on |
+
+---
+
+## Requirements
+
+vibegroup answers via Claude Code Channels, which is a **research-preview** feature. That means:
+
+- **Claude Code ≥ 2.1.80** with **Anthropic auth** (claude.ai or a Console API key) — not Bedrock/Vertex/Foundry.
+- Until the plugin is on Anthropic's channel allowlist, launch with **`--dangerously-load-development-channels`** (fine for you-and-your-friends).
+- The answering session must be **open** — keep one running (a `tmux` pane works) to be answerable while away.
 
 ---
 
 ## Quick start
 
-> **Status:** vibegroup is **alpha**. It works end-to-end and is test-covered, but it hasn't been packaged for one-line install yet — you clone and run. The live responder needs a Claude login with headless API credit (`claude -p`); without it, the responder degrades gracefully to a safe "couldn't answer" reply.
+> **Status:** alpha — you clone and run; no one-line install yet.
 
-You'll need [Bun](https://bun.sh) ≥ 1.1.
-
-**1. Clone the three repos side by side** (the local `file:` links expect siblings):
+You'll need [Bun](https://bun.sh) ≥ 1.1. Clone the three repos side by side:
 
 ```bash
 git clone https://github.com/TerryCM/vibegroup-protocol
 git clone https://github.com/TerryCM/vibegroup-relay
-git clone https://github.com/TerryCM/vibegroup
+git clone https://github.com/TerryCM/vibegroup && (cd vibegroup && bun install)
 ```
 
-**2. Run the relay** — or skip this and point at the public **alpha instance** (`wss://vibegroup-relay.grayriver-52f1583a.eastus.azurecontainerapps.io/ws`; see [`vibegroup-relay/DEPLOY.md`](https://github.com/TerryCM/vibegroup-relay/blob/main/DEPLOY.md)). To self-host:
+**1. A relay** — use the public **alpha instance** (`wss://vibegroup-relay.grayriver-52f1583a.eastus.azurecontainerapps.io/ws`), or self-host (see [`vibegroup-relay/DEPLOY.md`](https://github.com/TerryCM/vibegroup-relay/blob/main/DEPLOY.md)).
+
+**2. A room** — share the token with your friends out-of-band:
 
 ```bash
-cd vibegroup-relay && bun install && PORT=8799 RELAY_SECRET=$(openssl rand -hex 16) bun run start
+curl -X POST https://vibegroup-relay.grayriver-52f1583a.eastus.azurecontainerapps.io/rooms
+# → { "room": "rm_…", "token": "…" }
 ```
 
-**3. Create a room** and share the token with your teammate out-of-band:
+**3. In each repo you want in the room, drop a `.mcp.json`** registering the channel (peer name distinguishes you):
+
+```json
+{
+  "mcpServers": {
+    "vibegroup": {
+      "command": "bun",
+      "args": ["run", "/abs/path/to/vibegroup/src/channelServer.ts"],
+      "env": {
+        "VIBEGROUP_RELAY_URL": "wss://…/ws",
+        "VIBEGROUP_ROOM": "rm_…",
+        "VIBEGROUP_TOKEN": "…",
+        "VIBEGROUP_NAME": "alice"
+      }
+    }
+  }
+}
+```
+
+**4. Launch the session as a channel:**
 
 ```bash
-curl -X POST http://localhost:8799/rooms
-# → {"room":"rm_…","token":"…"}
+claude --dangerously-load-development-channels server:vibegroup
 ```
 
-**4. Join from each checkout** — this makes the checkout answerable:
-
-```bash
-cd vibegroup && bun install
-export VIBEGROUP_RELAY_URL=wss://vibegroup-relay.grayriver-52f1583a.eastus.azurecontainerapps.io/ws  # alpha instance, or your own
-export VIBEGROUP_ROOM=rm_…
-export VIBEGROUP_TOKEN=…
-export VIBEGROUP_NAME=alice-lib       # how peers see you
-export VIBEGROUP_MODEL=…              # a model available for headless `claude -p`
-
-bun run src/cli.ts join "$VIBEGROUP_ROOM"
-```
-
-**5. Ask from inside Claude Code** — load the plugin (`--plugin-dir ./vibegroup` or add it to `~/.claude/settings.json`) so the `vibegroup_*` tools and `/vibegroup` command are available, then:
-
-```
-You: ask alice-lib what the new importer API looks like
-Agent → vibegroup_peers()                          # find alice-lib's peerId
-Agent → vibegroup_ask(peer, "new importer API?")   # returns a qid
-Agent → vibegroup_inbox()                          # a moment later: the answer
-```
+**5. Ask** — in one session: *"use `vibegroup_peers`, then ask alice what they're working on."* Their session wakes, answers from its repo, and the answer pops into yours.
 
 ---
 
-## MCP tools
+## Tools
 
 | Tool | Description |
 |---|---|
 | `vibegroup_peers` | List the agents in your room and what they're working on. |
-| `vibegroup_ask` | Ask a peer a question. Returns a `qid` immediately (non-blocking). |
-| `vibegroup_inbox` | Collect answers that have arrived since the last check. |
-| `vibegroup_status` | Your connection status. |
-| `vibegroup_leave` | Leave the room. |
+| `vibegroup_ask` | Ask a peer a question. Returns a `qid`; the answer arrives as a `<channel kind="answer">` event. |
+| `vibegroup_reply` | Answer a peer's question (pass the `qid` from the incoming `<channel kind="question">` event). |
 
-Incoming questions are answered automatically by the read-only responder — no tool call needed on the answering side.
-
----
-
-## Configuration
-
-| Variable | Description |
-|---|---|
-| `VIBEGROUP_RELAY_URL` | WebSocket URL of the relay (e.g. `wss://relay.example/ws`). |
-| `VIBEGROUP_ROOM` | Room id from the relay's `POST /rooms`. |
-| `VIBEGROUP_TOKEN` | Room token — used for both relay auth **and** deriving the E2E key. |
-| `VIBEGROUP_NAME` | Display name peers see. |
-| `VIBEGROUP_MODEL` | Model for the responder's `claude -p` (pin one available for headless runs). |
+Questions and answers both **arrive as channel events** pushed into your session — there's no inbox to poll.
 
 ---
 
 ## Security model
 
-Untrusted input crossing the internet into something that can touch your machine deserves real containment, not a polite prompt. vibegroup's defenses are structural:
+A peer's question lands in your live session, so the defenses are framing + scope, not a separate sandbox:
 
-- **Least-privilege responder.** Answers run in a separate `claude -p` with a read-only tool allowlist (`Read`, `Grep`, `Glob`, read-only `git`) and an explicit denylist for `Write`/`Edit`/network. It *can't* exfiltrate or mutate — the tools don't exist in that context.
-- **End-to-end encryption.** Per-room AES-256-GCM; the relay routes ciphertext and never holds a key.
-- **Secret redaction.** Answers are scrubbed for API keys, tokens, private-key blocks, and `SECRET=`-style assignments, then length-capped, before they leave.
-- **Signed identity.** The relay stamps the authoritative sender; clients can't assert someone else's `from`.
-- **Private rooms.** Membership is gated by a token shared out-of-band.
+- **Untrusted-input framing.** The channel's system instructions tell the agent to treat incoming questions as data (never instructions), answer **read-only**, and never reveal secrets or run state-changing commands.
+- **Secret redaction.** Replies are scrubbed for API keys, tokens, and private-key blocks, then length-capped, before they leave.
+- **End-to-end encryption.** Per-room AES-256-GCM; the relay holds no key.
+- **Signed identity + private rooms.** The relay stamps the authoritative sender; membership is gated by a token shared out-of-band.
 
-Found a security issue? Please open an issue — we want to know.
+> **Honest note:** because answering happens in your *real* session, treat a vibegroup room as you'd treat the people in it — a circle of friends, not the open internet. Keep your permission settings tight, and don't put a relay token somewhere untrusted.
 
 ---
 
 ## Project status & roadmap
 
-vibegroup is an early but working MVP.
+- ✅ **Relay broker** — rooms, signed identity, ciphertext routing, qid lifecycle, offline queue + resume. Deployed on Azure Container Apps.
+- ✅ **Channel agent** — E2E crypto, relay client, the `vibegroup_*` tools, push-based question/answer delivery, read-only framing. Verified live across two sessions.
+- ⏳ **Packaging** — `/plugin install` + channel allowlisting so it's not a dev-flag launch.
+- ⏳ **Hardening** — relay rate limits + auth on room creation, E2E key rotation, presence richness.
 
-- ✅ **Relay broker** — rooms, signed identity, ciphertext routing, qid lifecycle, offline queue + resume.
-- ✅ **Agent** — E2E crypto, relay client, read-only responder, MCP tools, standalone daemon, Claude Code plugin.
-- ⏳ **One-line install** — packaging for `/plugin install` and a hosted public relay.
-- ⏳ **E2E key rotation** on membership change; permission relay; presence richness.
-- 🔬 **Live mode** *(researching)* — optionally answer from the *live* session via [Claude Code Channels](https://code.claude.com/docs/en/channels) for full in-context fidelity, gated behind a proof that idle sessions can be woken safely.
+See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the full list and a real-world testing checklist.
 
 ---
 
@@ -179,16 +166,10 @@ vibegroup is an early but working MVP.
 
 ```bash
 bun install
-bun test            # hermetic; the live `claude -p` smoke test is opt-in
+bun test
 ```
 
-Run the live responder smoke test (needs Claude headless credit):
-
-```bash
-VIBEGROUP_E2E_CLAUDE=1 VIBEGROUP_E2E_CLAUDE_MODEL=<model> bun test test/claudeEngine.smoke.test.ts
-```
-
-The full design and implementation plans live under [`docs/`](docs/superpowers).
+Design docs and implementation plans live under [`docs/`](docs/superpowers).
 
 ---
 

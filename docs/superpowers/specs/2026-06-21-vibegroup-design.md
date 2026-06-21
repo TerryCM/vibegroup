@@ -1,8 +1,14 @@
-# vibegroup — Design Spec (rev. 2, post-review)
+# vibegroup — Design Spec (rev. 3, channel-first)
 
-**Status:** Approved for planning · **Date:** 2026-06-21 · **Supersedes:** rev. 1
+**Status:** Built & validated · **Date:** 2026-06-21 · **Supersedes:** rev. 2
 
-## 0. What changed in this revision (from the review panel)
+## 0. rev. 3 — answering moved to Claude Code Channels
+
+Idle-wake was proven (Anthropic's `fakechat` woke an idle session; then vibegroup did the same across two real sessions), so answering moved from the rev-2 read-only `claude -p` responder to a **Claude Code Channel**: peer questions and answers are pushed into the *live* session via `notifications/claude/channel`, and the agent answers read-only via the `vibegroup_reply` tool. This keeps the relay, protocol, E2E crypto, and `RelayClient` unchanged — it swaps the responder + poll-inbox surface for the channel (`src/channel.ts`, `src/channelServer.ts`). The `claude -p` responder stays in-tree as a fallback for environments without Channels.
+
+Trade-offs accepted: it depends on the Channels research preview (Anthropic auth; `--dangerously-load-development-channels` until the plugin is allowlisted) and the answering session must be open. Containment is now untrusted-input framing + read-only scope + secret redaction rather than a separate sandbox process — acceptable for the private-room-of-friends threat model.
+
+## 0b. What rev. 2 changed (from the review panel)
 
 Three independent reviewers (GPT-5.5 + two Opus-4.8 at max effort) found two blockers in rev. 1. This revision inverts the design accordingly:
 

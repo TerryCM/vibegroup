@@ -6,8 +6,8 @@ Status of the project and what's left. The MVP (encrypted ask/answer with a read
 
 - [x] **Deploy the relay** to a public host — live on Azure Container Apps (`wss://vibegroup-relay.grayriver-52f1583a.eastus.azurecontainerapps.io/ws`; see `vibegroup-relay/DEPLOY.md`).
 - [x] **Point a default relay URL** in the agent docs / config (set in the README quick-start).
-- [~] **Real-world end-to-end test** — WSS ingress + E2E + routing verified against the live relay (two clients, encrypted ask→answer round trip). Still pending: two *physical* machines on two networks, and a live `claude -p` answer (needs headless credit). See checklist below.
-- [ ] **Pin a responder model** that has headless `claude -p` credit; document the exact id in the README.
+- [x] **Real-world end-to-end test** — two real Claude Code sessions, channel-mode, over the live Azure relay: one asks, the other's session wakes and answers from its own checkout, answer pushes back. WSS + E2E + routing all confirmed.
+- [ ] **Two physical machines on two networks** — confirm the same flow off a single host (NAT/firewall traversal).
 
 ## Packaging & distribution
 
@@ -36,10 +36,12 @@ Status of the project and what's left. The MVP (encrypted ask/answer with a read
 - [ ] **Multi-turn threads** so a follow-up keeps context.
 - [ ] **Transcript-tail context** wired explicitly into the responder prompt for sharper "what are you working on" answers.
 
-## Research — "live mode" (M3, gated)
+## Channels "live mode" — SHIPPED (now the answering path)
 
-- [ ] **Idle-wake proof spike** (task zero): emit a [Channels](https://code.claude.com/docs/en/channels) notification into an idle session, assert a turn starts and the reply tool fires — across idle / generating / permission-blocked / reconnected states.
-- [ ] If it passes **and** the plugin is allowlisted: optional "live mode" that answers from the live session for full in-context fidelity, still under an enforced read-only per-turn tool policy. If it fails, the read-only responder remains the answering path.
+- [x] **Idle-wake proven** — a Channels notification wakes an idle session (verified with Anthropic's fakechat, then with vibegroup across two real sessions).
+- [x] **Channel agent** — peer questions/answers push into the live session via `notifications/claude/channel`; the agent answers read-only via `vibegroup_reply`. This replaced the headless `claude -p` responder as the default answering path.
+- [ ] **Allowlisting** — get vibegroup onto Anthropic's channel allowlist (or an org `allowedChannelPlugins`) so it loads without `--dangerously-load-development-channels`.
+- [ ] **Per-turn read-only enforcement** — back the untrusted-input framing with a config-enforced read-only permission posture for channel-triggered turns (defense beyond the prompt).
 
 ## Real-world testing checklist
 
