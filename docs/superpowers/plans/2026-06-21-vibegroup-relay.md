@@ -14,7 +14,7 @@
 - Protocol version field is the literal `1` (`PROTOCOL_VERSION = 1`).
 - The relay **never decrypts** `body`; question/answer bodies are opaque `{ ciphertext, nonce }`.
 - The relay **ignores any client-supplied `from`** and stamps the connection's authoritative `peerId`.
-- Package names: `@vibegroup/protocol`, `@vibegroup/relay`. Workspace layout: `packages/*`.
+- **Repo layout (updated):** three repos — `vibegroup-protocol` (the `@vibegroup/protocol` contract), `vibegroup-relay` (this server; depends on protocol via `file:../vibegroup-protocol`), and `vibegroup` (docs + future client/agent). Tasks 1–6 were built in a monorepo then extracted; **Tasks 7–9 run in the `vibegroup-relay` repo** where source is `src/*` and tests are `test/*` (drop the `packages/relay/` prefix shown in the per-task paths below).
 - Identifiers: peer ids `p_<hex>`, question ids `q_<hex>`, message ids `m_<hex>`.
 - Offline queue defaults: TTL `300_000` ms, cap `50` per peer. Ask TTL default: `600_000` ms.
 - Commit style: conventional commits (`feat:`, `test:`, `chore:`). Work on branch `feat/relay-broker` (created in Task 1), never on the default branch.
