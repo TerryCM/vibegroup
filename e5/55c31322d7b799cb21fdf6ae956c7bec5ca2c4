@@ -1,0 +1,21 @@
+src/relayClient.ts
+  s_e1b8c7a7c37b85::t_fef86958114585 1-93
+test/relayClient.integration.test.ts
+  s_e1b8c7a7c37b85::t_4c2d23d7d22e2f 1-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "e555c31322d7b799cb21fdf6ae956c7bec5ca2c4",
+  "prompts": {},
+  "sessions": {
+    "s_e1b8c7a7c37b85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d76dab22-5e3e-4718-958e-d84684eb9e16",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Terry Cruz Melo <terry@cruz.pe>"
+    }
+  }
+}
