@@ -3,7 +3,14 @@
   "version": "0.0.1",
   "type": "module",
   "main": "src/index.ts",
-  "scripts": { "test": "bun test" },
-  "dependencies": { "@vibegroup/protocol": "file:../vibegroup-protocol" },
-  "devDependencies": { "@vibegroup/relay": "file:../vibegroup-relay" }
+  "scripts": {
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@vibegroup/protocol": "file:../vibegroup-protocol"
+  },
+  "devDependencies": {
+    "@vibegroup/relay": "file:../vibegroup-relay"
+  }
 }
