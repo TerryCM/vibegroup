@@ -1,14 +1,6 @@
-import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
-import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js'
+import { createToolServer, type ToolDef } from './toolServer'
 import type { AgentSession } from './agentSession'
-
-export interface ToolDef {
-  name: string
-  description: string
-  inputSchema: Record<string, unknown>
-  handler: (args: Record<string, unknown>) => Promise<string>
-}
 
 export function vibegroupTools(session: AgentSession): ToolDef[] {
   return [
@@ -50,16 +42,10 @@ export function vibegroupTools(session: AgentSession): ToolDef[] {
 }
 
 export async function startMcpServer(session: AgentSession): Promise<void> {
-  const tools = vibegroupTools(session)
-  const server = new Server({ name: 'vibegroup', version: '0.0.1' }, { capabilities: { tools: {} } })
-  server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: tools.map(({ name, description, inputSchema }) => ({ name, description, inputSchema })),
-  }))
-  server.setRequestHandler(CallToolRequestSchema, async (req) => {
-    const tool = tools.find((t) => t.name === req.params.name)
-    if (!tool) throw new Error(`unknown tool: ${req.params.name}`)
-    const text = await tool.handler((req.params.arguments ?? {}) as Record<string, unknown>)
-    return { content: [{ type: 'text', text }] }
-  })
+  const server = createToolServer(
+    { name: 'vibegroup', version: '0.0.1' },
+    vibegroupTools(session),
+    { capabilities: { tools: {} } },
+  )
   await server.connect(new StdioServerTransport())
 }
