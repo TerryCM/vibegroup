@@ -1,0 +1,8 @@
+{
+  "name": "vibegroup",
+  "version": "0.0.1",
+  "description": "Ask peer Claude Code agents in other repos/machines questions over a vibegroup relay.",
+  "mcpServers": ".mcp.json",
+  "commands": "./commands",
+  "hooks": "./hooks/hooks.json"
+}
