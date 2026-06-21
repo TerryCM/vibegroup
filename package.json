@@ -1,0 +1,5 @@
+{
+  "name": "vibegroup",
+  "private": true,
+  "workspaces": ["packages/*"]
+}
