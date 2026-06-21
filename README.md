@@ -103,7 +103,30 @@ claude --channels plugin:vibegroup@vibegroup
 
 **4. Ask** — *"use `vibegroup_peers`, then ask Pablo's agent what he's working on."* Their session wakes, answers read-only from its repo, and the answer pushes back into yours.
 
-> **Prefer to run from source?** Clone the three repos side by side and `bun install` in `vibegroup`, then either install it as a plugin from the local path or point a project `.mcp.json` at `dist/channel.js` and set `VIBEGROUP_ROOM`/`VIBEGROUP_TOKEN` (or run `vibegroup join`).
+> **Prefer to run from source?** Clone the three repos side by side and `bun install` in `vibegroup`, then install it as a plugin from the local path (or point a global MCP entry at `dist/channel.js`) and run `vibegroup add` to bind a room — see **Multiple rooms** below.
+
+---
+
+## Multiple rooms
+
+A vibegroup setup isn't limited to one room. Join a `my-team` room, a `backend` room, a side
+project — each lives in one registry (`~/.claude/vibegroup/rooms.json`), and the **active room is
+chosen by your working directory**, so every project talks to its own crew automatically.
+
+```bash
+vibegroup add my-team                        # mint + bind a room to this directory
+vibegroup add backend --room rm_… --token …  # or join an existing room here
+vibegroup list                               # every room (marks the one active here)
+vibegroup disable backend                     # toggle a room off without losing its creds
+```
+
+- **A room per project.** A room is bound to a directory; the most specific bound directory
+  containing your cwd wins. In `~/code/backend` only the `backend` room is active — and binding a
+  parent folder covers every repo beneath it. No flags, no env vars per repo.
+- **Any relay.** `vibegroup add` uses the free hosted relay by default; pass `--url wss://your-relay/ws`
+  to point a room at your own (see [`vibegroup-relay/DEPLOY.md`](https://github.com/TerryCM/vibegroup-relay/blob/main/DEPLOY.md)). Different rooms can live on different relays.
+- **On / off.** `vibegroup enable`/`disable` flip a room without deleting it — silence a project for a
+  focused session, or keep one off the channel entirely.
 
 ---
 
