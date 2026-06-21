@@ -37,3 +37,23 @@ test('the responder prompt frames the question as untrusted and read-only', () =
   expect(p.toLowerCase()).toContain('read-only')
   expect(p.toLowerCase()).toContain('do not')
 })
+
+import { buildClaudeArgs } from '../src/responder'
+
+test('buildClaudeArgs enforces the read-only tool policy', () => {
+  const args = buildClaudeArgs('what branch?')
+  const allow = args[args.indexOf('--allowedTools') + 1]
+  const deny = args[args.indexOf('--disallowedTools') + 1]
+  expect(allow).toContain('Read')
+  expect(allow).toContain('Bash(git status:*)')
+  expect(allow).not.toContain('Write')
+  expect(deny).toContain('Write')
+  expect(deny).toContain('Edit')
+  expect(args).not.toContain('--model')
+  expect(args[args.indexOf('-p') + 1]).toContain('what branch?')
+})
+
+test('buildClaudeArgs pins a model when provided', () => {
+  const args = buildClaudeArgs('q', 'haiku')
+  expect(args[args.indexOf('--model') + 1]).toBe('haiku')
+})

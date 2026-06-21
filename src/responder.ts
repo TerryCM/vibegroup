@@ -53,23 +53,28 @@ export function buildResponderPrompt(question: string): string {
   ].join('\n')
 }
 
-export interface ClaudeEngineOptions { cwd: string; bin?: string; timeoutMs?: number }
+export interface ClaudeEngineOptions { cwd: string; bin?: string; timeoutMs?: number; model?: string }
 
 const READ_ONLY_TOOLS = [
   'Read', 'Grep', 'Glob',
   'Bash(git status:*)', 'Bash(git log:*)', 'Bash(git diff:*)', 'Bash(git branch:*)', 'Bash(git show:*)',
 ].join(',')
 
+export function buildClaudeArgs(question: string, model?: string): string[] {
+  return [
+    '-p', buildResponderPrompt(question),
+    '--output-format', 'text',
+    '--allowedTools', READ_ONLY_TOOLS,
+    '--disallowedTools', 'Write,Edit,NotebookEdit,WebFetch,WebSearch',
+    ...(model ? ['--model', model] : []),
+  ]
+}
+
 export function claudeAnswerEngine(o: ClaudeEngineOptions): AnswerEngine {
   return {
     answer(question, { cwd }) {
       return new Promise<string>((resolve, reject) => {
-        const args = [
-          '-p', buildResponderPrompt(question),
-          '--output-format', 'text',
-          '--allowedTools', READ_ONLY_TOOLS,
-          '--disallowedTools', 'Write,Edit,NotebookEdit,WebFetch,WebSearch',
-        ]
+        const args = buildClaudeArgs(question, o.model)
         const child = spawn(o.bin ?? 'claude', args, { cwd: cwd ?? o.cwd, stdio: ['ignore', 'pipe', 'pipe'] })
         let out = '', err = ''
         const timer = setTimeout(() => { child.kill('SIGKILL'); reject(new Error('claude responder timed out')) }, o.timeoutMs ?? 60_000)
