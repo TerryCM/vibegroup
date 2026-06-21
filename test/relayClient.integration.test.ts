@@ -18,3 +18,20 @@ test('connect joins the room and assigns a peerId', async () => {
   expect(c.peerId).toMatch(/^p_/)
   c.close()
 })
+
+test('ask delivers an encrypted question the peer decrypts', async () => {
+  const { url, room, token } = await setup()
+  const alice = new RelayClient({ url, room, token, name: 'alice' })
+  const bob = new RelayClient({ url, room, token, name: 'bob' })
+  await alice.connect()
+  await bob.connect()
+
+  const got = new Promise<{ from: string; qid: string; question: string }>((r) => bob.onQuestion(r))
+  const qid = await alice.ask(bob.peerId!, 'what branch are you on?')
+  const q = await got
+
+  expect(q.question).toBe('what branch are you on?')
+  expect(q.qid).toBe(qid)
+  expect(q.from).toBe(alice.peerId)
+  alice.close(); bob.close()
+})
