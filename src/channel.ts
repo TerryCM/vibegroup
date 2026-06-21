@@ -1,7 +1,6 @@
-import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
-import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js'
 import { RelayClient, type PeerSummary } from './relayClient'
+import { createToolServer, type ToolDef } from './toolServer'
 import { redactSecrets } from './redact'
 
 export interface ChannelOptions { url: string; room: string; token: string; name: string; maxAnswerChars?: number }
@@ -12,13 +11,6 @@ export interface RelayLike {
   peers(): Promise<PeerSummary[]>
   ask(peer: string, question: string): Promise<string>
   answer(toPeerId: string, qid: string, text: string): Promise<void>
-}
-
-export interface ToolDef {
-  name: string
-  description: string
-  inputSchema: Record<string, unknown>
-  handler: (args: Record<string, unknown>) => Promise<string>
 }
 
 export interface ChannelPush { content: string; meta: Record<string, string> }
@@ -83,19 +75,11 @@ export async function startChannel(opts: ChannelOptions): Promise<void> {
   const pending = new Map<string, string>()
   const tools = createChannelTools(client, pending, opts.maxAnswerChars)
 
-  const mcp = new Server(
+  const mcp = createToolServer(
     { name: 'vibegroup', version: '0.0.1' },
+    tools,
     { capabilities: { tools: {}, experimental: { 'claude/channel': {} } }, instructions: CHANNEL_INSTRUCTIONS },
   )
-  mcp.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: tools.map(({ name, description, inputSchema }) => ({ name, description, inputSchema })),
-  }))
-  mcp.setRequestHandler(CallToolRequestSchema, async (req) => {
-    const tool = tools.find((t) => t.name === req.params.name)
-    if (!tool) throw new Error(`unknown tool: ${req.params.name}`)
-    const text = await tool.handler((req.params.arguments ?? {}) as Record<string, unknown>)
-    return { content: [{ type: 'text', text }] }
-  })
   await mcp.connect(new StdioServerTransport())
 
   // Push inbound relay events INTO the live session — this is what wakes it.
