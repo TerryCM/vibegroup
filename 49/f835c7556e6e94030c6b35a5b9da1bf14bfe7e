@@ -1,0 +1,21 @@
+test/responder.test.ts
+  s_e1b8c7a7c37b85::t_077cf181ae7f15 1-29
+src/responder.ts
+  s_e1b8c7a7c37b85::t_61ffb0d629ad9a 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "49f835c7556e6e94030c6b35a5b9da1bf14bfe7e",
+  "prompts": {},
+  "sessions": {
+    "s_e1b8c7a7c37b85": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d76dab22-5e3e-4718-958e-d84684eb9e16",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Terry Cruz Melo <terry@cruz.pe>"
+    }
+  }
+}
