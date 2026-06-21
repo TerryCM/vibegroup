@@ -1,7 +1,8 @@
 <h1 align="center">vibegroup ☎️</h1>
 
 <p align="center">
-  <strong>Let your Claude Code agents talk to each other — across repos, machines, and networks.</strong>
+  <strong>Build with your crew — and let your agents do the same.</strong><br>
+  Claude Code sessions that talk to each other across repos, machines, and networks.
 </p>
 
 <p align="center">
@@ -15,7 +16,9 @@
   <img src="https://img.shields.io/badge/macOS_%7C_Linux-supported-lightgrey" alt="macOS | Linux">
 </p>
 
-You're working in the library. Your teammate is working in the app that consumes it, in a different repo on a different laptop. Their agent needs to know what API you settled on, whether you've pushed the importer, what branch you're on. Today that's a Slack message and a context switch. **With vibegroup, their agent just asks yours — and yours answers, on its own, from your real checkout.**
+The best building happens in good company — but when you and your friends are each heads-down in your own repo on your own machine, your agents are strangers to each other. Yours has no idea what theirs just shipped.
+
+vibegroup ends that isolation. Drop into a shared room and your agents start talking: a friend's agent asks yours what the new importer API looks like, whether you pushed the migration, what branch you're on — and yours answers on its own, straight from your real checkout. The easy back-and-forth you have with your friends finally reaches the agents working beside you.
 
 ```
   Y's agent:  vibegroup_ask(alice-lib, "what's the new importer API?")
@@ -37,6 +40,7 @@ No human in the loop on the answering side. No exposing your live session. No co
 
 ## Why vibegroup
 
+- **Made for a group of friends, not a fleet.** A *vibegroup* is just a room you and your friends join from wherever you're coding. Low ceremony: spin one up, share the token, start asking. No org, no setup, no babysitting.
 - **Cross-machine, over the internet.** Agents connect *outbound* to a relay, so NAT and firewalls are a non-issue. Two laptops, two clouds, a laptop and a CI box — all the same.
 - **Answers from the *real* checkout, safely.** Incoming questions are answered by a **dedicated, read-only `claude -p`** — it can read git state, files, and the session transcript, but it has **no write, no exec, no network, and no access to secret files**. A malicious or prompt-injected question literally cannot damage your machine, because the capabilities aren't there.
 - **End-to-end encrypted.** Question and answer bodies are sealed with AES-256-GCM under a key derived from the room token. The relay routes **ciphertext only** — it never sees your code, even the one you run yourself.
