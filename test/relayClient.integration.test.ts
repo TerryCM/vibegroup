@@ -35,3 +35,34 @@ test('ask delivers an encrypted question the peer decrypts', async () => {
   expect(q.from).toBe(alice.peerId)
   alice.close(); bob.close()
 })
+
+test('full encrypted ask -> answer round trip', async () => {
+  const { url, room, token } = await setup()
+  const alice = new RelayClient({ url, room, token, name: 'alice' })
+  const bob = new RelayClient({ url, room, token, name: 'bob' })
+  await alice.connect()
+  await bob.connect()
+
+  bob.onQuestion(async (q) => { await bob.answer(q.from, q.qid, `answering: ${q.question}`) })
+  const gotAnswer = new Promise<{ from: string; qid: string; answer: string }>((r) => alice.onAnswer(r))
+
+  const qid = await alice.ask(bob.peerId!, 'did you finish the importer?')
+  const a = await gotAnswer
+
+  expect(a.qid).toBe(qid)
+  expect(a.from).toBe(bob.peerId)
+  expect(a.answer).toBe('answering: did you finish the importer?')
+  alice.close(); bob.close()
+})
+
+test('peers lists the room members', async () => {
+  const { url, room, token } = await setup()
+  const alice = new RelayClient({ url, room, token, name: 'alice' })
+  const bob = new RelayClient({ url, room, token, name: 'bob' })
+  await alice.connect()
+  await bob.connect()
+
+  const names = (await alice.peers()).map((p) => p.name).sort()
+  expect(names).toEqual(['alice', 'bob'])
+  alice.close(); bob.close()
+})
