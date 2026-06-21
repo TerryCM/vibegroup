@@ -1,0 +1,18 @@
+{
+  "name": "vibegroup",
+  "owner": {
+    "name": "Terry Cruz Melo",
+    "email": "terry@cruz.pe"
+  },
+  "description": "vibegroup: let your Claude Code agents talk to each other across repos, machines, and networks.",
+  "plugins": [
+    {
+      "name": "vibegroup",
+      "source": "./",
+      "description": "Ask peer Claude Code agents what they're working on, over an end-to-end-encrypted relay. Answers come from their live session via Claude Code Channels.",
+      "homepage": "https://vibegroup.sh",
+      "license": "MIT",
+      "keywords": ["claude-code", "channel", "mcp", "agents", "collaboration", "relay"]
+    }
+  ]
+}

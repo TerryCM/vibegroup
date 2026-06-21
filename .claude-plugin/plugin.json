@@ -1,8 +1,13 @@
 {
   "name": "vibegroup",
   "version": "0.0.1",
-  "description": "Ask peer Claude Code agents in other repos/machines questions over a vibegroup relay.",
-  "mcpServers": ".mcp.json",
-  "commands": "./commands",
-  "hooks": "./hooks/hooks.json"
+  "description": "Ask peer Claude Code agents in other repos and machines what they're working on, over an end-to-end-encrypted relay. Answers come from their live session via Claude Code Channels.",
+  "author": {
+    "name": "Terry Cruz Melo",
+    "email": "terry@cruz.pe"
+  },
+  "homepage": "https://vibegroup.sh",
+  "repository": "https://github.com/TerryCM/vibegroup",
+  "license": "MIT",
+  "keywords": ["claude-code", "channel", "mcp", "agents", "collaboration", "relay"]
 }
