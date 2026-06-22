@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { homedir } from 'os'
-import { dirname } from 'path'
+import { dirname, resolve } from 'path'
 import {
   configPath,
   managedSettingsPath,
@@ -10,6 +10,16 @@ import {
   DEFAULT_RELAY_WS,
   type VibegroupConfig,
 } from '../src/config'
+import {
+  registryPath,
+  parseRegistry,
+  serializeRegistry,
+  upsertRoom,
+  removeRoom,
+  setEnabled,
+  type RoomEntry,
+} from '../src/roomRegistry'
+import { defaultLabel, formatRoomList, formatActive } from '../src/roomCli'
 
 const args = process.argv.slice(2)
 const cmd = args[0]
@@ -18,6 +28,18 @@ function flag(name: string): string | undefined {
   const i = args.indexOf(`--${name}`)
   return i >= 0 ? args[i + 1] : undefined
 }
+
+// Positional args = everything after the command that isn't a `--flag` or a
+// flag's value. Each of our flags takes a value, so a `--flag` consumes the next token.
+function positionalArgs(rest: string[]): string[] {
+  const out: string[] = []
+  for (let i = 0; i < rest.length; i++) {
+    if (rest[i].startsWith('--')) { i++; continue }
+    out.push(rest[i])
+  }
+  return out
+}
+const positional = positionalArgs(args.slice(1))
 
 function readJson(path: string): Record<string, unknown> | null {
   try {
@@ -28,24 +50,69 @@ function readJson(path: string): Record<string, unknown> | null {
   return null
 }
 
+function loadRegistry() {
+  const path = registryPath(homedir())
+  try {
+    return existsSync(path) ? parseRegistry(readFileSync(path, 'utf8')) : parseRegistry(null)
+  } catch {
+    return parseRegistry(null)
+  }
+}
+
+function saveRegistry(reg: ReturnType<typeof loadRegistry>): string {
+  const path = registryPath(homedir())
+  mkdirSync(dirname(path), { recursive: true })
+  writeFileSync(path, serializeRegistry(reg))
+  return path
+}
+
+async function mintRoom(): Promise<{ room: string; token: string }> {
+  const http = flag('relay-http') ?? DEFAULT_RELAY_HTTP
+  const res = await fetch(`${http}/rooms`, { method: 'POST' })
+  if (!res.ok) {
+    console.error(`vibegroup: could not mint a room (HTTP ${res.status})`)
+    process.exit(1)
+  }
+  return (await res.json()) as { room: string; token: string }
+}
+
+// vibegroup add <label?> [--room r --token t] [--name n] [--url u] [--dir d]
+// Mints a fresh room (or joins an existing one with --room/--token) and binds it
+// to a directory (default: cwd), recording it in the central registry.
+async function add() {
+  const dir = resolve(flag('dir') ?? process.cwd())
+  const label = positional[0] ?? defaultLabel(dir)
+  const name = flag('name') ?? defaultLabel(dir)
+  const url = flag('url') ?? DEFAULT_RELAY_WS
+  let room = flag('room')
+  let token = flag('token')
+
+  if (!room || !token) ({ room, token } = await mintRoom())
+
+  const entry: RoomEntry = { url, room, token, name, dir, enabled: true }
+  const path = saveRegistry(upsertRoom(loadRegistry(), label, entry))
+
+  console.log(`added room "${label}" → ${dir}`)
+  console.log(`share with your crew →  room: ${room}   token: ${token}`)
+  console.log(`registry: ${path}`)
+}
+
+function requireLabel(action: string): string {
+  const label = positional[0]
+  if (!label) {
+    console.error(`usage: vibegroup ${action} <label>`)
+    process.exit(1)
+  }
+  return label
+}
+
+// Legacy single-room join — kept for backward compatibility with existing docs.
 async function join() {
-  const positional = args.slice(1).filter((a) => !a.startsWith('--'))
   const name = flag('name') ?? 'vibegroup-agent'
   const url = flag('url') ?? DEFAULT_RELAY_WS
   let room = positional[0]
   let token = positional[1]
-
-  if (!room || !token) {
-    const http = flag('relay-http') ?? DEFAULT_RELAY_HTTP
-    const res = await fetch(`${http}/rooms`, { method: 'POST' })
-    if (!res.ok) {
-      console.error(`vibegroup: could not mint a room (HTTP ${res.status})`)
-      process.exit(1)
-    }
-    const minted = (await res.json()) as { room: string; token: string }
-    room = minted.room
-    token = minted.token
-  }
+  if (!room || !token) ({ room, token } = await mintRoom())
 
   const cfg: VibegroupConfig = { url, room, token, name }
   const path = configPath(homedir())
@@ -58,6 +125,28 @@ async function join() {
 }
 
 switch (cmd) {
+  case 'add':
+    await add()
+    break
+  case 'list':
+    console.log(formatRoomList(loadRegistry(), process.cwd()))
+    break
+  case 'remove': {
+    const label = requireLabel('remove')
+    saveRegistry(removeRoom(loadRegistry(), label))
+    console.log(`removed room "${label}"`)
+    break
+  }
+  case 'enable':
+  case 'disable': {
+    const label = requireLabel(cmd)
+    saveRegistry(setEnabled(loadRegistry(), label, cmd === 'enable'))
+    console.log(`${cmd}d room "${label}"`)
+    break
+  }
+  case 'show':
+    console.log(formatActive(loadRegistry(), process.cwd()))
+    break
   case 'join':
     await join()
     break
@@ -67,11 +156,6 @@ switch (cmd) {
   case 'allowlist-path':
     console.log(managedSettingsPath(process.platform))
     break
-  case 'show': {
-    const cfg = readJson(configPath(homedir()))
-    console.log(cfg ? `room: ${cfg.room}\nname: ${cfg.name}\nrelay: ${cfg.url}` : 'not configured (run: vibegroup join)')
-    break
-  }
   default:
-    console.log('usage: vibegroup <join|allowlist-json|allowlist-path|show>')
+    console.log('usage: vibegroup <add|list|remove|enable|disable|show|join|allowlist-json|allowlist-path>')
 }
