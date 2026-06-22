@@ -1,22 +1,14 @@
-import { existsSync, readFileSync } from 'fs'
 import { homedir } from 'os'
 import { startChannel } from './channel'
-import { resolveConfig, configPath, type VibegroupConfig } from './config'
+import { resolveActiveRoom } from './roomStore'
 
-function readConfigFile(): Partial<VibegroupConfig> | null {
-  const path = configPath(homedir())
-  try {
-    if (existsSync(path)) return JSON.parse(readFileSync(path, 'utf8'))
-  } catch {
-    /* unreadable/invalid config — treat as absent */
-  }
-  return null
-}
-
-const config = resolveConfig(process.env, readConfigFile())
-if (!config) {
-  console.error('vibegroup: not configured yet. Run /vibegroup:allow-channel to set up and join a room.')
+// Pick the room bound to this working directory and join it as a channel.
+// No active room here → vibegroup is off for this project; exit quietly.
+const active = resolveActiveRoom(homedir(), process.cwd())
+if (!active) {
+  console.error('vibegroup: no room active in this directory. Add one with `vibegroup add` here.')
   process.exit(0)
 }
 
-await startChannel(config)
+const { url, room, token, name } = active.entry
+await startChannel({ url, room, token, name })

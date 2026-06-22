@@ -1144,9 +1144,9 @@ var require_util = __commonJS((exports) => {
     }
   }
   exports.eachItem = eachItem;
-  function makeMergeEvaluated({ mergeNames, mergeToName, mergeValues: mergeValues2, resultToName }) {
+  function makeMergeEvaluated({ mergeNames, mergeToName, mergeValues: mergeValues3, resultToName }) {
     return (gen, from, to, toName) => {
-      const res = to === undefined ? from : to instanceof codegen_1.Name ? (from instanceof codegen_1.Name ? mergeNames(gen, from, to) : mergeToName(gen, from, to), to) : from instanceof codegen_1.Name ? (mergeToName(gen, to, from), from) : mergeValues2(from, to);
+      const res = to === undefined ? from : to instanceof codegen_1.Name ? (from instanceof codegen_1.Name ? mergeNames(gen, from, to) : mergeToName(gen, from, to), to) : from instanceof codegen_1.Name ? (mergeToName(gen, to, from), from) : mergeValues3(from, to);
       return toName === codegen_1.Name && !(res instanceof codegen_1.Name) ? resultToName(gen, res) : res;
     };
   }
@@ -1472,37 +1472,37 @@ var require_dataType = __commonJS((exports) => {
     DataType2[DataType2["Wrong"] = 1] = "Wrong";
   })(DataType || (exports.DataType = DataType = {}));
   function getSchemaTypes(schema) {
-    const types = getJSONTypes(schema.type);
-    const hasNull = types.includes("null");
+    const types2 = getJSONTypes(schema.type);
+    const hasNull = types2.includes("null");
     if (hasNull) {
       if (schema.nullable === false)
         throw new Error("type: null contradicts nullable: false");
     } else {
-      if (!types.length && schema.nullable !== undefined) {
+      if (!types2.length && schema.nullable !== undefined) {
         throw new Error('"nullable" cannot be used without "type"');
       }
       if (schema.nullable === true)
-        types.push("null");
+        types2.push("null");
     }
-    return types;
+    return types2;
   }
   exports.getSchemaTypes = getSchemaTypes;
   function getJSONTypes(ts) {
-    const types = Array.isArray(ts) ? ts : ts ? [ts] : [];
-    if (types.every(rules_1.isJSONType))
-      return types;
-    throw new Error("type must be JSONType or JSONType[]: " + types.join(","));
+    const types2 = Array.isArray(ts) ? ts : ts ? [ts] : [];
+    if (types2.every(rules_1.isJSONType))
+      return types2;
+    throw new Error("type must be JSONType or JSONType[]: " + types2.join(","));
   }
   exports.getJSONTypes = getJSONTypes;
-  function coerceAndCheckDataType(it, types) {
+  function coerceAndCheckDataType(it, types2) {
     const { gen, data, opts } = it;
-    const coerceTo = coerceToTypes(types, opts.coerceTypes);
-    const checkTypes = types.length > 0 && !(coerceTo.length === 0 && types.length === 1 && (0, applicability_1.schemaHasRulesForType)(it, types[0]));
+    const coerceTo = coerceToTypes(types2, opts.coerceTypes);
+    const checkTypes = types2.length > 0 && !(coerceTo.length === 0 && types2.length === 1 && (0, applicability_1.schemaHasRulesForType)(it, types2[0]));
     if (checkTypes) {
-      const wrongType = checkDataTypes(types, data, opts.strictNumbers, DataType.Wrong);
+      const wrongType = checkDataTypes(types2, data, opts.strictNumbers, DataType.Wrong);
       gen.if(wrongType, () => {
         if (coerceTo.length)
-          coerceData(it, types, coerceTo);
+          coerceData(it, types2, coerceTo);
         else
           reportTypeError(it);
       });
@@ -1511,15 +1511,15 @@ var require_dataType = __commonJS((exports) => {
   }
   exports.coerceAndCheckDataType = coerceAndCheckDataType;
   var COERCIBLE = new Set(["string", "number", "integer", "boolean", "null"]);
-  function coerceToTypes(types, coerceTypes) {
-    return coerceTypes ? types.filter((t) => COERCIBLE.has(t) || coerceTypes === "array" && t === "array") : [];
+  function coerceToTypes(types2, coerceTypes) {
+    return coerceTypes ? types2.filter((t) => COERCIBLE.has(t) || coerceTypes === "array" && t === "array") : [];
   }
-  function coerceData(it, types, coerceTo) {
+  function coerceData(it, types2, coerceTo) {
     const { gen, data, opts } = it;
     const dataType = gen.let("dataType", (0, codegen_1._)`typeof ${data}`);
     const coerced = gen.let("coerced", (0, codegen_1._)`undefined`);
     if (opts.coerceTypes === "array") {
-      gen.if((0, codegen_1._)`${dataType} == 'object' && Array.isArray(${data}) && ${data}.length == 1`, () => gen.assign(data, (0, codegen_1._)`${data}[0]`).assign(dataType, (0, codegen_1._)`typeof ${data}`).if(checkDataTypes(types, data, opts.strictNumbers), () => gen.assign(coerced, data)));
+      gen.if((0, codegen_1._)`${dataType} == 'object' && Array.isArray(${data}) && ${data}.length == 1`, () => gen.assign(data, (0, codegen_1._)`${data}[0]`).assign(dataType, (0, codegen_1._)`typeof ${data}`).if(checkDataTypes(types2, data, opts.strictNumbers), () => gen.assign(coerced, data)));
     }
     gen.if((0, codegen_1._)`${coerced} !== undefined`);
     for (const t of coerceTo) {
@@ -1595,19 +1595,19 @@ var require_dataType = __commonJS((exports) => {
       return checkDataType(dataTypes[0], data, strictNums, correct);
     }
     let cond;
-    const types = (0, util_1.toHash)(dataTypes);
-    if (types.array && types.object) {
+    const types2 = (0, util_1.toHash)(dataTypes);
+    if (types2.array && types2.object) {
       const notObj = (0, codegen_1._)`typeof ${data} != "object"`;
-      cond = types.null ? notObj : (0, codegen_1._)`!${data} || ${notObj}`;
-      delete types.null;
-      delete types.array;
-      delete types.object;
+      cond = types2.null ? notObj : (0, codegen_1._)`!${data} || ${notObj}`;
+      delete types2.null;
+      delete types2.array;
+      delete types2.object;
     } else {
       cond = codegen_1.nil;
     }
-    if (types.number)
-      delete types.integer;
-    for (const t in types)
+    if (types2.number)
+      delete types2.integer;
+    for (const t in types2)
       cond = (0, codegen_1.and)(cond, checkDataType(t, data, strictNums, correct));
     return cond;
   }
@@ -1864,9 +1864,9 @@ var require_keyword = __commonJS((exports) => {
       const passSchema = !(("compile" in def) && !$data || def.schema === false);
       gen.assign(valid, (0, codegen_1._)`${_await}${(0, code_1.callValidateCode)(cxt, validateRef, passCxt, passSchema)}`, def.modifying);
     }
-    function reportErrs(errors3) {
+    function reportErrs(errors4) {
       var _a2;
-      gen.if((0, codegen_1.not)((_a2 = def.valid) !== null && _a2 !== undefined ? _a2 : valid), errors3);
+      gen.if((0, codegen_1.not)((_a2 = def.valid) !== null && _a2 !== undefined ? _a2 : valid), errors4);
     }
   }
   exports.funcKeywordCode = funcKeywordCode;
@@ -2395,9 +2395,9 @@ var require_validate = __commonJS((exports) => {
   function typeAndKeywords(it, errsCount) {
     if (it.opts.jtd)
       return schemaKeywords(it, [], false, errsCount);
-    const types = (0, dataType_1.getSchemaTypes)(it.schema);
-    const checkedTypes = (0, dataType_1.coerceAndCheckDataType)(it, types);
-    schemaKeywords(it, types, !checkedTypes, errsCount);
+    const types2 = (0, dataType_1.getSchemaTypes)(it.schema);
+    const checkedTypes = (0, dataType_1.coerceAndCheckDataType)(it, types2);
+    schemaKeywords(it, types2, !checkedTypes, errsCount);
   }
   function checkRefsAndKeywords(it) {
     const { schema, errSchemaPath, opts, self } = it;
@@ -2447,7 +2447,7 @@ var require_validate = __commonJS((exports) => {
     if (items instanceof codegen_1.Name)
       gen.assign((0, codegen_1._)`${evaluated}.items`, items);
   }
-  function schemaKeywords(it, types, typeErrors, errsCount) {
+  function schemaKeywords(it, types2, typeErrors, errsCount) {
     const { gen, schema, data, allErrors, opts, self } = it;
     const { RULES } = self;
     if (schema.$ref && (opts.ignoreKeywordsWithRef || !(0, util_1.schemaHasRulesButRef)(schema, RULES))) {
@@ -2455,7 +2455,7 @@ var require_validate = __commonJS((exports) => {
       return;
     }
     if (!opts.jtd)
-      checkStrictTypes(it, types);
+      checkStrictTypes(it, types2);
     gen.block(() => {
       for (const group of RULES.rules)
         groupKeywords(group);
@@ -2467,7 +2467,7 @@ var require_validate = __commonJS((exports) => {
       if (group.type) {
         gen.if((0, dataType_2.checkDataType)(group.type, data, opts.strictNumbers));
         iterateKeywords(it, group);
-        if (types.length === 1 && types[0] === group.type && typeErrors) {
+        if (types2.length === 1 && types2[0] === group.type && typeErrors) {
           gen.else();
           (0, dataType_2.reportTypeError)(it);
         }
@@ -2491,27 +2491,27 @@ var require_validate = __commonJS((exports) => {
       }
     });
   }
-  function checkStrictTypes(it, types) {
+  function checkStrictTypes(it, types2) {
     if (it.schemaEnv.meta || !it.opts.strictTypes)
       return;
-    checkContextTypes(it, types);
+    checkContextTypes(it, types2);
     if (!it.opts.allowUnionTypes)
-      checkMultipleTypes(it, types);
+      checkMultipleTypes(it, types2);
     checkKeywordTypes(it, it.dataTypes);
   }
-  function checkContextTypes(it, types) {
-    if (!types.length)
+  function checkContextTypes(it, types2) {
+    if (!types2.length)
       return;
     if (!it.dataTypes.length) {
-      it.dataTypes = types;
+      it.dataTypes = types2;
       return;
     }
-    types.forEach((t) => {
+    types2.forEach((t) => {
       if (!includesType(it.dataTypes, t)) {
         strictTypesError(it, `type "${t}" not allowed by context "${it.dataTypes.join(",")}"`);
       }
     });
-    narrowSchemaTypes(it, types);
+    narrowSchemaTypes(it, types2);
   }
   function checkMultipleTypes(it, ts) {
     if (ts.length > 1 && !(ts.length === 2 && ts.includes("null"))) {
@@ -2784,9 +2784,9 @@ var require_validation_error = __commonJS((exports) => {
   Object.defineProperty(exports, "__esModule", { value: true });
 
   class ValidationError extends Error {
-    constructor(errors3) {
+    constructor(errors4) {
       super("validation failed");
-      this.errors = errors3;
+      this.errors = errors4;
       this.ajv = this.validation = true;
     }
   }
@@ -3539,7 +3539,7 @@ var require_fast_uri = __commonJS((exports, module) => {
     if (typeof uri === "string") {
       uri = normalizeString(uri, options);
     } else if (typeof uri === "object") {
-      uri = parse5(serialize(uri, options), options);
+      uri = parse5(serialize2(uri, options), options);
     }
     return uri;
   }
@@ -3547,13 +3547,13 @@ var require_fast_uri = __commonJS((exports, module) => {
     const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
     const resolved = resolveComponent(parse5(baseURI, schemelessOptions), parse5(relativeURI, schemelessOptions), schemelessOptions, true);
     schemelessOptions.skipEscape = true;
-    return serialize(resolved, schemelessOptions);
+    return serialize2(resolved, schemelessOptions);
   }
   function resolveComponent(base, relative, options, skipNormalization) {
     const target = {};
     if (!skipNormalization) {
-      base = parse5(serialize(base, options), options);
-      relative = parse5(serialize(relative, options), options);
+      base = parse5(serialize2(base, options), options);
+      relative = parse5(serialize2(relative, options), options);
     }
     options = options || {};
     if (!options.tolerant && relative.scheme) {
@@ -3607,7 +3607,7 @@ var require_fast_uri = __commonJS((exports, module) => {
     const normalizedB = normalizeComparableURI(uriB, options);
     return normalizedA !== undefined && normalizedB !== undefined && normalizedA.toLowerCase() === normalizedB.toLowerCase();
   }
-  function serialize(cmpts, opts) {
+  function serialize2(cmpts, opts) {
     const component = {
       host: cmpts.host,
       scheme: cmpts.scheme,
@@ -3786,7 +3786,7 @@ var require_fast_uri = __commonJS((exports, module) => {
   function normalizeStringWithStatus(uri, opts) {
     const { parsed, malformedAuthorityOrPort } = parseWithStatus(uri, opts);
     return {
-      normalized: malformedAuthorityOrPort ? uri : serialize(parsed, opts),
+      normalized: malformedAuthorityOrPort ? uri : serialize2(parsed, opts),
       malformedAuthorityOrPort
     };
   }
@@ -3796,7 +3796,7 @@ var require_fast_uri = __commonJS((exports, module) => {
       return malformedAuthorityOrPort ? undefined : normalized;
     }
     if (typeof uri === "object") {
-      return serialize(uri, opts);
+      return serialize2(uri, opts);
     }
   }
   var fastUri = {
@@ -3805,7 +3805,7 @@ var require_fast_uri = __commonJS((exports, module) => {
     resolve,
     resolveComponent,
     equal,
-    serialize,
+    serialize: serialize2,
     parse: parse5
   };
   module.exports = fastUri;
@@ -4196,10 +4196,10 @@ var require_core = __commonJS((exports) => {
       this.formats[name] = format;
       return this;
     }
-    errorsText(errors3 = this.errors, { separator = ", ", dataVar = "data" } = {}) {
-      if (!errors3 || errors3.length === 0)
+    errorsText(errors4 = this.errors, { separator = ", ", dataVar = "data" } = {}) {
+      if (!errors4 || errors4.length === 0)
         return "No errors";
-      return errors3.map((e) => `${dataVar}${e.instancePath} ${e.message}`).reduce((text, msg) => text + separator + msg);
+      return errors4.map((e) => `${dataVar}${e.instancePath} ${e.message}`).reduce((text, msg) => text + separator + msg);
     }
     $dataMetaSchema(metaSchema, keywordsJsonPointers) {
       const rules = this.RULES.all;
@@ -5457,13 +5457,13 @@ var require_additionalProperties = __commonJS((exports) => {
           }
         }
       }
-      function applyAdditionalSchema(key, valid, errors3) {
+      function applyAdditionalSchema(key, valid, errors4) {
         const subschema = {
           keyword: "additionalProperties",
           dataProp: key,
           dataPropType: util_1.Type.Str
         };
-        if (errors3 === false) {
+        if (errors4 === false) {
           Object.assign(subschema, {
             compositeRule: true,
             createErrors: false,
@@ -6604,8 +6604,10 @@ var require_dist = __commonJS((exports, module) => {
 });
 
 // src/channelServer.ts
-import { existsSync, readFileSync } from "fs";
 import { homedir } from "os";
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+import process2 from "process";
 
 // node_modules/zod/v4/core/core.js
 var NEVER = Object.freeze({
@@ -9624,68 +9626,6 @@ function _refine(Class2, fn, _params) {
   });
   return schema;
 }
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
-function isZ4Schema(s) {
-  const schema = s;
-  return !!schema._zod;
-}
-function safeParse2(schema, data) {
-  if (isZ4Schema(schema)) {
-    const result2 = safeParse(schema, data);
-    return result2;
-  }
-  const v3Schema = schema;
-  const result = v3Schema.safeParse(data);
-  return result;
-}
-function getObjectShape(schema) {
-  if (!schema)
-    return;
-  let rawShape;
-  if (isZ4Schema(schema)) {
-    const v4Schema = schema;
-    rawShape = v4Schema._zod?.def?.shape;
-  } else {
-    const v3Schema = schema;
-    rawShape = v3Schema.shape;
-  }
-  if (!rawShape)
-    return;
-  if (typeof rawShape === "function") {
-    try {
-      return rawShape();
-    } catch {
-      return;
-    }
-  }
-  return rawShape;
-}
-function getLiteralValue(schema) {
-  if (isZ4Schema(schema)) {
-    const v4Schema = schema;
-    const def2 = v4Schema._zod?.def;
-    if (def2) {
-      if (def2.value !== undefined)
-        return def2.value;
-      if (Array.isArray(def2.values) && def2.values.length > 0) {
-        return def2.values[0];
-      }
-    }
-  }
-  const v3Schema = schema;
-  const def = v3Schema._def;
-  if (def) {
-    if (def.value !== undefined)
-      return def.value;
-    if (Array.isArray(def.values) && def.values.length > 0) {
-      return def.values[0];
-    }
-  }
-  const directValue = schema.value;
-  if (directValue !== undefined)
-    return directValue;
-  return;
-}
 // node_modules/zod/v4/classic/iso.js
 var exports_iso = {};
 __export(exports_iso, {
@@ -9757,9 +9697,9 @@ var ZodRealError = $constructor("ZodError", initializer2, {
 });
 
 // node_modules/zod/v4/classic/parse.js
-var parse3 = /* @__PURE__ */ _parse(ZodRealError);
-var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
-var safeParse3 = /* @__PURE__ */ _safeParse(ZodRealError);
+var parse2 = /* @__PURE__ */ _parse(ZodRealError);
+var parseAsync = /* @__PURE__ */ _parseAsync(ZodRealError);
+var safeParse2 = /* @__PURE__ */ _safeParse(ZodRealError);
 var safeParseAsync2 = /* @__PURE__ */ _safeParseAsync(ZodRealError);
 
 // node_modules/zod/v4/classic/schemas.js
@@ -9782,9 +9722,9 @@ var ZodType = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
     reg.add(inst, meta);
     return inst;
   };
-  inst.parse = (data, params) => parse3(inst, data, params, { callee: inst.parse });
-  inst.safeParse = (data, params) => safeParse3(inst, data, params);
-  inst.parseAsync = async (data, params) => parseAsync2(inst, data, params, { callee: inst.parseAsync });
+  inst.parse = (data, params) => parse2(inst, data, params, { callee: inst.parse });
+  inst.safeParse = (data, params) => safeParse2(inst, data, params);
+  inst.parseAsync = async (data, params) => parseAsync(inst, data, params, { callee: inst.parseAsync });
   inst.safeParseAsync = async (data, params) => safeParseAsync2(inst, data, params);
   inst.spa = inst.safeParseAsync;
   inst.refine = (check, params) => inst.check(refine(check, params));
@@ -10057,7 +9997,7 @@ var ZodObject = /* @__PURE__ */ $constructor("ZodObject", (inst, def) => {
   inst.partial = (...args) => exports_util.partial(ZodOptional, inst, args[0]);
   inst.required = (...args) => exports_util.required(ZodNonOptional, inst, args[0]);
 });
-function object2(shape, params) {
+function object(shape, params) {
   const def = {
     type: "object",
     get shape() {
@@ -10382,31 +10322,31 @@ var TaskCreationParamsSchema = looseObject({
   ttl: number2().optional(),
   pollInterval: number2().optional()
 });
-var TaskMetadataSchema = object2({
+var TaskMetadataSchema = object({
   ttl: number2().optional()
 });
-var RelatedTaskMetadataSchema = object2({
+var RelatedTaskMetadataSchema = object({
   taskId: string2()
 });
 var RequestMetaSchema = looseObject({
   progressToken: ProgressTokenSchema.optional(),
   [RELATED_TASK_META_KEY]: RelatedTaskMetadataSchema.optional()
 });
-var BaseRequestParamsSchema = object2({
+var BaseRequestParamsSchema = object({
   _meta: RequestMetaSchema.optional()
 });
 var TaskAugmentedRequestParamsSchema = BaseRequestParamsSchema.extend({
   task: TaskMetadataSchema.optional()
 });
 var isTaskAugmentedRequestParams = (value) => TaskAugmentedRequestParamsSchema.safeParse(value).success;
-var RequestSchema = object2({
+var RequestSchema = object({
   method: string2(),
   params: BaseRequestParamsSchema.loose().optional()
 });
-var NotificationsParamsSchema = object2({
+var NotificationsParamsSchema = object({
   _meta: RequestMetaSchema.optional()
 });
-var NotificationSchema = object2({
+var NotificationSchema = object({
   method: string2(),
   params: NotificationsParamsSchema.loose().optional()
 });
@@ -10414,18 +10354,18 @@ var ResultSchema = looseObject({
   _meta: RequestMetaSchema.optional()
 });
 var RequestIdSchema = union([string2(), number2().int()]);
-var JSONRPCRequestSchema = object2({
+var JSONRPCRequestSchema = object({
   jsonrpc: literal(JSONRPC_VERSION),
   id: RequestIdSchema,
   ...RequestSchema.shape
 }).strict();
 var isJSONRPCRequest = (value) => JSONRPCRequestSchema.safeParse(value).success;
-var JSONRPCNotificationSchema = object2({
+var JSONRPCNotificationSchema = object({
   jsonrpc: literal(JSONRPC_VERSION),
   ...NotificationSchema.shape
 }).strict();
 var isJSONRPCNotification = (value) => JSONRPCNotificationSchema.safeParse(value).success;
-var JSONRPCResultResponseSchema = object2({
+var JSONRPCResultResponseSchema = object({
   jsonrpc: literal(JSONRPC_VERSION),
   id: RequestIdSchema,
   result: ResultSchema
@@ -10442,10 +10382,10 @@ var ErrorCode;
   ErrorCode2[ErrorCode2["InternalError"] = -32603] = "InternalError";
   ErrorCode2[ErrorCode2["UrlElicitationRequired"] = -32042] = "UrlElicitationRequired";
 })(ErrorCode || (ErrorCode = {}));
-var JSONRPCErrorResponseSchema = object2({
+var JSONRPCErrorResponseSchema = object({
   jsonrpc: literal(JSONRPC_VERSION),
   id: RequestIdSchema.optional(),
-  error: object2({
+  error: object({
     code: number2().int(),
     message: string2(),
     data: unknown().optional()
@@ -10468,16 +10408,16 @@ var CancelledNotificationSchema = NotificationSchema.extend({
   method: literal("notifications/cancelled"),
   params: CancelledNotificationParamsSchema
 });
-var IconSchema = object2({
+var IconSchema = object({
   src: string2(),
   mimeType: string2().optional(),
   sizes: array(string2()).optional(),
   theme: _enum(["light", "dark"]).optional()
 });
-var IconsSchema = object2({
+var IconsSchema = object({
   icons: array(IconSchema).optional()
 });
-var BaseMetadataSchema = object2({
+var BaseMetadataSchema = object({
   name: string2(),
   title: string2().optional()
 });
@@ -10488,7 +10428,7 @@ var ImplementationSchema = BaseMetadataSchema.extend({
   websiteUrl: string2().optional(),
   description: string2().optional()
 });
-var FormElicitationCapabilitySchema = intersection(object2({
+var FormElicitationCapabilitySchema = intersection(object({
   applyDefaults: boolean2().optional()
 }), record(string2(), unknown()));
 var ElicitationCapabilitySchema = preprocess((value) => {
@@ -10498,7 +10438,7 @@ var ElicitationCapabilitySchema = preprocess((value) => {
     }
   }
   return value;
-}, intersection(object2({
+}, intersection(object({
   form: FormElicitationCapabilitySchema.optional(),
   url: AssertObjectSchema.optional()
 }), record(string2(), unknown()).optional()));
@@ -10523,14 +10463,14 @@ var ServerTasksCapabilitySchema = looseObject({
     }).optional()
   }).optional()
 });
-var ClientCapabilitiesSchema = object2({
+var ClientCapabilitiesSchema = object({
   experimental: record(string2(), AssertObjectSchema).optional(),
-  sampling: object2({
+  sampling: object({
     context: AssertObjectSchema.optional(),
     tools: AssertObjectSchema.optional()
   }).optional(),
   elicitation: ElicitationCapabilitySchema.optional(),
-  roots: object2({
+  roots: object({
     listChanged: boolean2().optional()
   }).optional(),
   tasks: ClientTasksCapabilitySchema.optional(),
@@ -10545,18 +10485,18 @@ var InitializeRequestSchema = RequestSchema.extend({
   method: literal("initialize"),
   params: InitializeRequestParamsSchema
 });
-var ServerCapabilitiesSchema = object2({
+var ServerCapabilitiesSchema = object({
   experimental: record(string2(), AssertObjectSchema).optional(),
   logging: AssertObjectSchema.optional(),
   completions: AssertObjectSchema.optional(),
-  prompts: object2({
+  prompts: object({
     listChanged: boolean2().optional()
   }).optional(),
-  resources: object2({
+  resources: object({
     subscribe: boolean2().optional(),
     listChanged: boolean2().optional()
   }).optional(),
-  tools: object2({
+  tools: object({
     listChanged: boolean2().optional()
   }).optional(),
   tasks: ServerTasksCapabilitySchema.optional(),
@@ -10576,12 +10516,12 @@ var PingRequestSchema = RequestSchema.extend({
   method: literal("ping"),
   params: BaseRequestParamsSchema.optional()
 });
-var ProgressSchema = object2({
+var ProgressSchema = object({
   progress: number2(),
   total: optional(number2()),
   message: optional(string2())
 });
-var ProgressNotificationParamsSchema = object2({
+var ProgressNotificationParamsSchema = object({
   ...NotificationsParamsSchema.shape,
   ...ProgressSchema.shape,
   progressToken: ProgressTokenSchema
@@ -10600,7 +10540,7 @@ var PaginatedResultSchema = ResultSchema.extend({
   nextCursor: CursorSchema.optional()
 });
 var TaskStatusSchema = _enum(["working", "input_required", "completed", "failed", "cancelled"]);
-var TaskSchema = object2({
+var TaskSchema = object({
   taskId: string2(),
   status: TaskStatusSchema,
   ttl: union([number2(), _null3()]),
@@ -10644,7 +10584,7 @@ var CancelTaskRequestSchema = RequestSchema.extend({
   })
 });
 var CancelTaskResultSchema = ResultSchema.merge(TaskSchema);
-var ResourceContentsSchema = object2({
+var ResourceContentsSchema = object({
   uri: string2(),
   mimeType: optional(string2()),
   _meta: record(string2(), unknown()).optional()
@@ -10664,12 +10604,12 @@ var BlobResourceContentsSchema = ResourceContentsSchema.extend({
   blob: Base64Schema
 });
 var RoleSchema = _enum(["user", "assistant"]);
-var AnnotationsSchema = object2({
+var AnnotationsSchema = object({
   audience: array(RoleSchema).optional(),
   priority: number2().min(0).max(1).optional(),
   lastModified: exports_iso.datetime({ offset: true }).optional()
 });
-var ResourceSchema = object2({
+var ResourceSchema = object({
   ...BaseMetadataSchema.shape,
   ...IconsSchema.shape,
   uri: string2(),
@@ -10679,7 +10619,7 @@ var ResourceSchema = object2({
   annotations: AnnotationsSchema.optional(),
   _meta: optional(looseObject({}))
 });
-var ResourceTemplateSchema = object2({
+var ResourceTemplateSchema = object({
   ...BaseMetadataSchema.shape,
   ...IconsSchema.shape,
   uriTemplate: string2(),
@@ -10732,12 +10672,12 @@ var ResourceUpdatedNotificationSchema = NotificationSchema.extend({
   method: literal("notifications/resources/updated"),
   params: ResourceUpdatedNotificationParamsSchema
 });
-var PromptArgumentSchema = object2({
+var PromptArgumentSchema = object({
   name: string2(),
   description: optional(string2()),
   required: optional(boolean2())
 });
-var PromptSchema = object2({
+var PromptSchema = object({
   ...BaseMetadataSchema.shape,
   ...IconsSchema.shape,
   description: optional(string2()),
@@ -10758,34 +10698,34 @@ var GetPromptRequestSchema = RequestSchema.extend({
   method: literal("prompts/get"),
   params: GetPromptRequestParamsSchema
 });
-var TextContentSchema = object2({
+var TextContentSchema = object({
   type: literal("text"),
   text: string2(),
   annotations: AnnotationsSchema.optional(),
   _meta: record(string2(), unknown()).optional()
 });
-var ImageContentSchema = object2({
+var ImageContentSchema = object({
   type: literal("image"),
   data: Base64Schema,
   mimeType: string2(),
   annotations: AnnotationsSchema.optional(),
   _meta: record(string2(), unknown()).optional()
 });
-var AudioContentSchema = object2({
+var AudioContentSchema = object({
   type: literal("audio"),
   data: Base64Schema,
   mimeType: string2(),
   annotations: AnnotationsSchema.optional(),
   _meta: record(string2(), unknown()).optional()
 });
-var ToolUseContentSchema = object2({
+var ToolUseContentSchema = object({
   type: literal("tool_use"),
   name: string2(),
   id: string2(),
   input: record(string2(), unknown()),
   _meta: record(string2(), unknown()).optional()
 });
-var EmbeddedResourceSchema = object2({
+var EmbeddedResourceSchema = object({
   type: literal("resource"),
   resource: union([TextResourceContentsSchema, BlobResourceContentsSchema]),
   annotations: AnnotationsSchema.optional(),
@@ -10801,7 +10741,7 @@ var ContentBlockSchema = union([
   ResourceLinkSchema,
   EmbeddedResourceSchema
 ]);
-var PromptMessageSchema = object2({
+var PromptMessageSchema = object({
   role: RoleSchema,
   content: ContentBlockSchema
 });
@@ -10813,26 +10753,26 @@ var PromptListChangedNotificationSchema = NotificationSchema.extend({
   method: literal("notifications/prompts/list_changed"),
   params: NotificationsParamsSchema.optional()
 });
-var ToolAnnotationsSchema = object2({
+var ToolAnnotationsSchema = object({
   title: string2().optional(),
   readOnlyHint: boolean2().optional(),
   destructiveHint: boolean2().optional(),
   idempotentHint: boolean2().optional(),
   openWorldHint: boolean2().optional()
 });
-var ToolExecutionSchema = object2({
+var ToolExecutionSchema = object({
   taskSupport: _enum(["required", "optional", "forbidden"]).optional()
 });
-var ToolSchema = object2({
+var ToolSchema = object({
   ...BaseMetadataSchema.shape,
   ...IconsSchema.shape,
   description: string2().optional(),
-  inputSchema: object2({
+  inputSchema: object({
     type: literal("object"),
     properties: record(string2(), AssertObjectSchema).optional(),
     required: array(string2()).optional()
   }).catchall(unknown()),
-  outputSchema: object2({
+  outputSchema: object({
     type: literal("object"),
     properties: record(string2(), AssertObjectSchema).optional(),
     required: array(string2()).optional()
@@ -10867,7 +10807,7 @@ var ToolListChangedNotificationSchema = NotificationSchema.extend({
   method: literal("notifications/tools/list_changed"),
   params: NotificationsParamsSchema.optional()
 });
-var ListChangedOptionsBaseSchema = object2({
+var ListChangedOptionsBaseSchema = object({
   autoRefresh: boolean2().default(true),
   debounceMs: number2().int().nonnegative().default(300)
 });
@@ -10888,23 +10828,23 @@ var LoggingMessageNotificationSchema = NotificationSchema.extend({
   method: literal("notifications/message"),
   params: LoggingMessageNotificationParamsSchema
 });
-var ModelHintSchema = object2({
+var ModelHintSchema = object({
   name: string2().optional()
 });
-var ModelPreferencesSchema = object2({
+var ModelPreferencesSchema = object({
   hints: array(ModelHintSchema).optional(),
   costPriority: number2().min(0).max(1).optional(),
   speedPriority: number2().min(0).max(1).optional(),
   intelligencePriority: number2().min(0).max(1).optional()
 });
-var ToolChoiceSchema = object2({
+var ToolChoiceSchema = object({
   mode: _enum(["auto", "required", "none"]).optional()
 });
-var ToolResultContentSchema = object2({
+var ToolResultContentSchema = object({
   type: literal("tool_result"),
   toolUseId: string2().describe("The unique identifier for the corresponding tool call."),
   content: array(ContentBlockSchema).default([]),
-  structuredContent: object2({}).loose().optional(),
+  structuredContent: object({}).loose().optional(),
   isError: boolean2().optional(),
   _meta: record(string2(), unknown()).optional()
 });
@@ -10916,7 +10856,7 @@ var SamplingMessageContentBlockSchema = discriminatedUnion("type", [
   ToolUseContentSchema,
   ToolResultContentSchema
 ]);
-var SamplingMessageSchema = object2({
+var SamplingMessageSchema = object({
   role: RoleSchema,
   content: union([SamplingMessageContentBlockSchema, array(SamplingMessageContentBlockSchema)]),
   _meta: record(string2(), unknown()).optional()
@@ -10949,13 +10889,13 @@ var CreateMessageResultWithToolsSchema = ResultSchema.extend({
   role: RoleSchema,
   content: union([SamplingMessageContentBlockSchema, array(SamplingMessageContentBlockSchema)])
 });
-var BooleanSchemaSchema = object2({
+var BooleanSchemaSchema = object({
   type: literal("boolean"),
   title: string2().optional(),
   description: string2().optional(),
   default: boolean2().optional()
 });
-var StringSchemaSchema = object2({
+var StringSchemaSchema = object({
   type: literal("string"),
   title: string2().optional(),
   description: string2().optional(),
@@ -10964,7 +10904,7 @@ var StringSchemaSchema = object2({
   format: _enum(["email", "uri", "date", "date-time"]).optional(),
   default: string2().optional()
 });
-var NumberSchemaSchema = object2({
+var NumberSchemaSchema = object({
   type: _enum(["number", "integer"]),
   title: string2().optional(),
   description: string2().optional(),
@@ -10972,24 +10912,24 @@ var NumberSchemaSchema = object2({
   maximum: number2().optional(),
   default: number2().optional()
 });
-var UntitledSingleSelectEnumSchemaSchema = object2({
+var UntitledSingleSelectEnumSchemaSchema = object({
   type: literal("string"),
   title: string2().optional(),
   description: string2().optional(),
   enum: array(string2()),
   default: string2().optional()
 });
-var TitledSingleSelectEnumSchemaSchema = object2({
+var TitledSingleSelectEnumSchemaSchema = object({
   type: literal("string"),
   title: string2().optional(),
   description: string2().optional(),
-  oneOf: array(object2({
+  oneOf: array(object({
     const: string2(),
     title: string2()
   })),
   default: string2().optional()
 });
-var LegacyTitledEnumSchemaSchema = object2({
+var LegacyTitledEnumSchemaSchema = object({
   type: literal("string"),
   title: string2().optional(),
   description: string2().optional(),
@@ -10998,26 +10938,26 @@ var LegacyTitledEnumSchemaSchema = object2({
   default: string2().optional()
 });
 var SingleSelectEnumSchemaSchema = union([UntitledSingleSelectEnumSchemaSchema, TitledSingleSelectEnumSchemaSchema]);
-var UntitledMultiSelectEnumSchemaSchema = object2({
+var UntitledMultiSelectEnumSchemaSchema = object({
   type: literal("array"),
   title: string2().optional(),
   description: string2().optional(),
   minItems: number2().optional(),
   maxItems: number2().optional(),
-  items: object2({
+  items: object({
     type: literal("string"),
     enum: array(string2())
   }),
   default: array(string2()).optional()
 });
-var TitledMultiSelectEnumSchemaSchema = object2({
+var TitledMultiSelectEnumSchemaSchema = object({
   type: literal("array"),
   title: string2().optional(),
   description: string2().optional(),
   minItems: number2().optional(),
   maxItems: number2().optional(),
-  items: object2({
-    anyOf: array(object2({
+  items: object({
+    anyOf: array(object({
       const: string2(),
       title: string2()
     }))
@@ -11030,7 +10970,7 @@ var PrimitiveSchemaDefinitionSchema = union([EnumSchemaSchema, BooleanSchemaSche
 var ElicitRequestFormParamsSchema = TaskAugmentedRequestParamsSchema.extend({
   mode: literal("form").optional(),
   message: string2(),
-  requestedSchema: object2({
+  requestedSchema: object({
     type: literal("object"),
     properties: record(string2(), PrimitiveSchemaDefinitionSchema),
     required: array(string2()).optional()
@@ -11058,21 +10998,21 @@ var ElicitResultSchema = ResultSchema.extend({
   action: _enum(["accept", "decline", "cancel"]),
   content: preprocess((val) => val === null ? undefined : val, record(string2(), union([string2(), number2(), boolean2(), array(string2())])).optional())
 });
-var ResourceTemplateReferenceSchema = object2({
+var ResourceTemplateReferenceSchema = object({
   type: literal("ref/resource"),
   uri: string2()
 });
-var PromptReferenceSchema = object2({
+var PromptReferenceSchema = object({
   type: literal("ref/prompt"),
   name: string2()
 });
 var CompleteRequestParamsSchema = BaseRequestParamsSchema.extend({
   ref: union([PromptReferenceSchema, ResourceTemplateReferenceSchema]),
-  argument: object2({
+  argument: object({
     name: string2(),
     value: string2()
   }),
-  context: object2({
+  context: object({
     arguments: record(string2(), string2()).optional()
   }).optional()
 });
@@ -11087,7 +11027,7 @@ var CompleteResultSchema = ResultSchema.extend({
     hasMore: optional(boolean2())
   })
 });
-var RootSchema = object2({
+var RootSchema = object({
   uri: string2().startsWith("file://"),
   name: string2().optional(),
   _meta: record(string2(), unknown()).optional()
@@ -11204,1366 +11144,6 @@ class UrlElicitationRequiredError extends McpError {
     return this.data?.elicitations ?? [];
   }
 }
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
-function isTerminal(status) {
-  return status === "completed" || status === "failed" || status === "cancelled";
-}
-
-// node_modules/zod-to-json-schema/dist/esm/Options.js
-var ignoreOverride = Symbol("Let zodToJsonSchema decide on which parser to use");
-// node_modules/zod-to-json-schema/dist/esm/parsers/string.js
-var ALPHA_NUMERIC = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
-function getMethodLiteral(schema) {
-  const shape = getObjectShape(schema);
-  const methodSchema = shape?.method;
-  if (!methodSchema) {
-    throw new Error("Schema is missing a method literal");
-  }
-  const value = getLiteralValue(methodSchema);
-  if (typeof value !== "string") {
-    throw new Error("Schema method literal must be a string");
-  }
-  return value;
-}
-function parseWithCompat(schema, data) {
-  const result = safeParse2(schema, data);
-  if (!result.success) {
-    throw result.error;
-  }
-  return result.data;
-}
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
-var DEFAULT_REQUEST_TIMEOUT_MSEC = 60000;
-
-class Protocol {
-  constructor(_options) {
-    this._options = _options;
-    this._requestMessageId = 0;
-    this._requestHandlers = new Map;
-    this._requestHandlerAbortControllers = new Map;
-    this._notificationHandlers = new Map;
-    this._responseHandlers = new Map;
-    this._progressHandlers = new Map;
-    this._timeoutInfo = new Map;
-    this._pendingDebouncedNotifications = new Set;
-    this._taskProgressTokens = new Map;
-    this._requestResolvers = new Map;
-    this.setNotificationHandler(CancelledNotificationSchema, (notification) => {
-      this._oncancel(notification);
-    });
-    this.setNotificationHandler(ProgressNotificationSchema, (notification) => {
-      this._onprogress(notification);
-    });
-    this.setRequestHandler(PingRequestSchema, (_request) => ({}));
-    this._taskStore = _options?.taskStore;
-    this._taskMessageQueue = _options?.taskMessageQueue;
-    if (this._taskStore) {
-      this.setRequestHandler(GetTaskRequestSchema, async (request, extra) => {
-        const task = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
-        if (!task) {
-          throw new McpError(ErrorCode.InvalidParams, "Failed to retrieve task: Task not found");
-        }
-        return {
-          ...task
-        };
-      });
-      this.setRequestHandler(GetTaskPayloadRequestSchema, async (request, extra) => {
-        const handleTaskResult = async () => {
-          const taskId = request.params.taskId;
-          if (this._taskMessageQueue) {
-            let queuedMessage;
-            while (queuedMessage = await this._taskMessageQueue.dequeue(taskId, extra.sessionId)) {
-              if (queuedMessage.type === "response" || queuedMessage.type === "error") {
-                const message = queuedMessage.message;
-                const requestId = message.id;
-                const resolver = this._requestResolvers.get(requestId);
-                if (resolver) {
-                  this._requestResolvers.delete(requestId);
-                  if (queuedMessage.type === "response") {
-                    resolver(message);
-                  } else {
-                    const errorMessage = message;
-                    const error2 = new McpError(errorMessage.error.code, errorMessage.error.message, errorMessage.error.data);
-                    resolver(error2);
-                  }
-                } else {
-                  const messageType = queuedMessage.type === "response" ? "Response" : "Error";
-                  this._onerror(new Error(`${messageType} handler missing for request ${requestId}`));
-                }
-                continue;
-              }
-              await this._transport?.send(queuedMessage.message, { relatedRequestId: extra.requestId });
-            }
-          }
-          const task = await this._taskStore.getTask(taskId, extra.sessionId);
-          if (!task) {
-            throw new McpError(ErrorCode.InvalidParams, `Task not found: ${taskId}`);
-          }
-          if (!isTerminal(task.status)) {
-            await this._waitForTaskUpdate(taskId, extra.signal);
-            return await handleTaskResult();
-          }
-          if (isTerminal(task.status)) {
-            const result = await this._taskStore.getTaskResult(taskId, extra.sessionId);
-            this._clearTaskQueue(taskId);
-            return {
-              ...result,
-              _meta: {
-                ...result._meta,
-                [RELATED_TASK_META_KEY]: {
-                  taskId
-                }
-              }
-            };
-          }
-          return await handleTaskResult();
-        };
-        return await handleTaskResult();
-      });
-      this.setRequestHandler(ListTasksRequestSchema, async (request, extra) => {
-        try {
-          const { tasks, nextCursor } = await this._taskStore.listTasks(request.params?.cursor, extra.sessionId);
-          return {
-            tasks,
-            nextCursor,
-            _meta: {}
-          };
-        } catch (error2) {
-          throw new McpError(ErrorCode.InvalidParams, `Failed to list tasks: ${error2 instanceof Error ? error2.message : String(error2)}`);
-        }
-      });
-      this.setRequestHandler(CancelTaskRequestSchema, async (request, extra) => {
-        try {
-          const task = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
-          if (!task) {
-            throw new McpError(ErrorCode.InvalidParams, `Task not found: ${request.params.taskId}`);
-          }
-          if (isTerminal(task.status)) {
-            throw new McpError(ErrorCode.InvalidParams, `Cannot cancel task in terminal status: ${task.status}`);
-          }
-          await this._taskStore.updateTaskStatus(request.params.taskId, "cancelled", "Client cancelled task execution.", extra.sessionId);
-          this._clearTaskQueue(request.params.taskId);
-          const cancelledTask = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
-          if (!cancelledTask) {
-            throw new McpError(ErrorCode.InvalidParams, `Task not found after cancellation: ${request.params.taskId}`);
-          }
-          return {
-            _meta: {},
-            ...cancelledTask
-          };
-        } catch (error2) {
-          if (error2 instanceof McpError) {
-            throw error2;
-          }
-          throw new McpError(ErrorCode.InvalidRequest, `Failed to cancel task: ${error2 instanceof Error ? error2.message : String(error2)}`);
-        }
-      });
-    }
-  }
-  async _oncancel(notification) {
-    if (!notification.params.requestId) {
-      return;
-    }
-    const controller = this._requestHandlerAbortControllers.get(notification.params.requestId);
-    controller?.abort(notification.params.reason);
-  }
-  _setupTimeout(messageId, timeout, maxTotalTimeout, onTimeout, resetTimeoutOnProgress = false) {
-    this._timeoutInfo.set(messageId, {
-      timeoutId: setTimeout(onTimeout, timeout),
-      startTime: Date.now(),
-      timeout,
-      maxTotalTimeout,
-      resetTimeoutOnProgress,
-      onTimeout
-    });
-  }
-  _resetTimeout(messageId) {
-    const info = this._timeoutInfo.get(messageId);
-    if (!info)
-      return false;
-    const totalElapsed = Date.now() - info.startTime;
-    if (info.maxTotalTimeout && totalElapsed >= info.maxTotalTimeout) {
-      this._timeoutInfo.delete(messageId);
-      throw McpError.fromError(ErrorCode.RequestTimeout, "Maximum total timeout exceeded", {
-        maxTotalTimeout: info.maxTotalTimeout,
-        totalElapsed
-      });
-    }
-    clearTimeout(info.timeoutId);
-    info.timeoutId = setTimeout(info.onTimeout, info.timeout);
-    return true;
-  }
-  _cleanupTimeout(messageId) {
-    const info = this._timeoutInfo.get(messageId);
-    if (info) {
-      clearTimeout(info.timeoutId);
-      this._timeoutInfo.delete(messageId);
-    }
-  }
-  async connect(transport) {
-    if (this._transport) {
-      throw new Error("Already connected to a transport. Call close() before connecting to a new transport, or use a separate Protocol instance per connection.");
-    }
-    this._transport = transport;
-    const _onclose = this.transport?.onclose;
-    this._transport.onclose = () => {
-      _onclose?.();
-      this._onclose();
-    };
-    const _onerror = this.transport?.onerror;
-    this._transport.onerror = (error2) => {
-      _onerror?.(error2);
-      this._onerror(error2);
-    };
-    const _onmessage = this._transport?.onmessage;
-    this._transport.onmessage = (message, extra) => {
-      _onmessage?.(message, extra);
-      if (isJSONRPCResultResponse(message) || isJSONRPCErrorResponse(message)) {
-        this._onresponse(message);
-      } else if (isJSONRPCRequest(message)) {
-        this._onrequest(message, extra);
-      } else if (isJSONRPCNotification(message)) {
-        this._onnotification(message);
-      } else {
-        this._onerror(new Error(`Unknown message type: ${JSON.stringify(message)}`));
-      }
-    };
-    await this._transport.start();
-  }
-  _onclose() {
-    const responseHandlers = this._responseHandlers;
-    this._responseHandlers = new Map;
-    this._progressHandlers.clear();
-    this._taskProgressTokens.clear();
-    this._pendingDebouncedNotifications.clear();
-    for (const info of this._timeoutInfo.values()) {
-      clearTimeout(info.timeoutId);
-    }
-    this._timeoutInfo.clear();
-    for (const controller of this._requestHandlerAbortControllers.values()) {
-      controller.abort();
-    }
-    this._requestHandlerAbortControllers.clear();
-    const error2 = McpError.fromError(ErrorCode.ConnectionClosed, "Connection closed");
-    this._transport = undefined;
-    this.onclose?.();
-    for (const handler of responseHandlers.values()) {
-      handler(error2);
-    }
-  }
-  _onerror(error2) {
-    this.onerror?.(error2);
-  }
-  _onnotification(notification) {
-    const handler = this._notificationHandlers.get(notification.method) ?? this.fallbackNotificationHandler;
-    if (handler === undefined) {
-      return;
-    }
-    Promise.resolve().then(() => handler(notification)).catch((error2) => this._onerror(new Error(`Uncaught error in notification handler: ${error2}`)));
-  }
-  _onrequest(request, extra) {
-    const handler = this._requestHandlers.get(request.method) ?? this.fallbackRequestHandler;
-    const capturedTransport = this._transport;
-    const relatedTaskId = request.params?._meta?.[RELATED_TASK_META_KEY]?.taskId;
-    if (handler === undefined) {
-      const errorResponse = {
-        jsonrpc: "2.0",
-        id: request.id,
-        error: {
-          code: ErrorCode.MethodNotFound,
-          message: "Method not found"
-        }
-      };
-      if (relatedTaskId && this._taskMessageQueue) {
-        this._enqueueTaskMessage(relatedTaskId, {
-          type: "error",
-          message: errorResponse,
-          timestamp: Date.now()
-        }, capturedTransport?.sessionId).catch((error2) => this._onerror(new Error(`Failed to enqueue error response: ${error2}`)));
-      } else {
-        capturedTransport?.send(errorResponse).catch((error2) => this._onerror(new Error(`Failed to send an error response: ${error2}`)));
-      }
-      return;
-    }
-    const abortController = new AbortController;
-    this._requestHandlerAbortControllers.set(request.id, abortController);
-    const taskCreationParams = isTaskAugmentedRequestParams(request.params) ? request.params.task : undefined;
-    const taskStore = this._taskStore ? this.requestTaskStore(request, capturedTransport?.sessionId) : undefined;
-    const fullExtra = {
-      signal: abortController.signal,
-      sessionId: capturedTransport?.sessionId,
-      _meta: request.params?._meta,
-      sendNotification: async (notification) => {
-        if (abortController.signal.aborted)
-          return;
-        const notificationOptions = { relatedRequestId: request.id };
-        if (relatedTaskId) {
-          notificationOptions.relatedTask = { taskId: relatedTaskId };
-        }
-        await this.notification(notification, notificationOptions);
-      },
-      sendRequest: async (r, resultSchema, options) => {
-        if (abortController.signal.aborted) {
-          throw new McpError(ErrorCode.ConnectionClosed, "Request was cancelled");
-        }
-        const requestOptions = { ...options, relatedRequestId: request.id };
-        if (relatedTaskId && !requestOptions.relatedTask) {
-          requestOptions.relatedTask = { taskId: relatedTaskId };
-        }
-        const effectiveTaskId = requestOptions.relatedTask?.taskId ?? relatedTaskId;
-        if (effectiveTaskId && taskStore) {
-          await taskStore.updateTaskStatus(effectiveTaskId, "input_required");
-        }
-        return await this.request(r, resultSchema, requestOptions);
-      },
-      authInfo: extra?.authInfo,
-      requestId: request.id,
-      requestInfo: extra?.requestInfo,
-      taskId: relatedTaskId,
-      taskStore,
-      taskRequestedTtl: taskCreationParams?.ttl,
-      closeSSEStream: extra?.closeSSEStream,
-      closeStandaloneSSEStream: extra?.closeStandaloneSSEStream
-    };
-    Promise.resolve().then(() => {
-      if (taskCreationParams) {
-        this.assertTaskHandlerCapability(request.method);
-      }
-    }).then(() => handler(request, fullExtra)).then(async (result) => {
-      if (abortController.signal.aborted) {
-        return;
-      }
-      const response = {
-        result,
-        jsonrpc: "2.0",
-        id: request.id
-      };
-      if (relatedTaskId && this._taskMessageQueue) {
-        await this._enqueueTaskMessage(relatedTaskId, {
-          type: "response",
-          message: response,
-          timestamp: Date.now()
-        }, capturedTransport?.sessionId);
-      } else {
-        await capturedTransport?.send(response);
-      }
-    }, async (error2) => {
-      if (abortController.signal.aborted) {
-        return;
-      }
-      const errorResponse = {
-        jsonrpc: "2.0",
-        id: request.id,
-        error: {
-          code: Number.isSafeInteger(error2["code"]) ? error2["code"] : ErrorCode.InternalError,
-          message: error2.message ?? "Internal error",
-          ...error2["data"] !== undefined && { data: error2["data"] }
-        }
-      };
-      if (relatedTaskId && this._taskMessageQueue) {
-        await this._enqueueTaskMessage(relatedTaskId, {
-          type: "error",
-          message: errorResponse,
-          timestamp: Date.now()
-        }, capturedTransport?.sessionId);
-      } else {
-        await capturedTransport?.send(errorResponse);
-      }
-    }).catch((error2) => this._onerror(new Error(`Failed to send response: ${error2}`))).finally(() => {
-      if (this._requestHandlerAbortControllers.get(request.id) === abortController) {
-        this._requestHandlerAbortControllers.delete(request.id);
-      }
-    });
-  }
-  _onprogress(notification) {
-    const { progressToken, ...params } = notification.params;
-    const messageId = Number(progressToken);
-    const handler = this._progressHandlers.get(messageId);
-    if (!handler) {
-      this._onerror(new Error(`Received a progress notification for an unknown token: ${JSON.stringify(notification)}`));
-      return;
-    }
-    const responseHandler = this._responseHandlers.get(messageId);
-    const timeoutInfo = this._timeoutInfo.get(messageId);
-    if (timeoutInfo && responseHandler && timeoutInfo.resetTimeoutOnProgress) {
-      try {
-        this._resetTimeout(messageId);
-      } catch (error2) {
-        this._responseHandlers.delete(messageId);
-        this._progressHandlers.delete(messageId);
-        this._cleanupTimeout(messageId);
-        responseHandler(error2);
-        return;
-      }
-    }
-    handler(params);
-  }
-  _onresponse(response) {
-    const messageId = Number(response.id);
-    const resolver = this._requestResolvers.get(messageId);
-    if (resolver) {
-      this._requestResolvers.delete(messageId);
-      if (isJSONRPCResultResponse(response)) {
-        resolver(response);
-      } else {
-        const error2 = new McpError(response.error.code, response.error.message, response.error.data);
-        resolver(error2);
-      }
-      return;
-    }
-    const handler = this._responseHandlers.get(messageId);
-    if (handler === undefined) {
-      this._onerror(new Error(`Received a response for an unknown message ID: ${JSON.stringify(response)}`));
-      return;
-    }
-    this._responseHandlers.delete(messageId);
-    this._cleanupTimeout(messageId);
-    let isTaskResponse = false;
-    if (isJSONRPCResultResponse(response) && response.result && typeof response.result === "object") {
-      const result = response.result;
-      if (result.task && typeof result.task === "object") {
-        const task = result.task;
-        if (typeof task.taskId === "string") {
-          isTaskResponse = true;
-          this._taskProgressTokens.set(task.taskId, messageId);
-        }
-      }
-    }
-    if (!isTaskResponse) {
-      this._progressHandlers.delete(messageId);
-    }
-    if (isJSONRPCResultResponse(response)) {
-      handler(response);
-    } else {
-      const error2 = McpError.fromError(response.error.code, response.error.message, response.error.data);
-      handler(error2);
-    }
-  }
-  get transport() {
-    return this._transport;
-  }
-  async close() {
-    await this._transport?.close();
-  }
-  async* requestStream(request, resultSchema, options) {
-    const { task } = options ?? {};
-    if (!task) {
-      try {
-        const result = await this.request(request, resultSchema, options);
-        yield { type: "result", result };
-      } catch (error2) {
-        yield {
-          type: "error",
-          error: error2 instanceof McpError ? error2 : new McpError(ErrorCode.InternalError, String(error2))
-        };
-      }
-      return;
-    }
-    let taskId;
-    try {
-      const createResult = await this.request(request, CreateTaskResultSchema, options);
-      if (createResult.task) {
-        taskId = createResult.task.taskId;
-        yield { type: "taskCreated", task: createResult.task };
-      } else {
-        throw new McpError(ErrorCode.InternalError, "Task creation did not return a task");
-      }
-      while (true) {
-        const task2 = await this.getTask({ taskId }, options);
-        yield { type: "taskStatus", task: task2 };
-        if (isTerminal(task2.status)) {
-          if (task2.status === "completed") {
-            const result = await this.getTaskResult({ taskId }, resultSchema, options);
-            yield { type: "result", result };
-          } else if (task2.status === "failed") {
-            yield {
-              type: "error",
-              error: new McpError(ErrorCode.InternalError, `Task ${taskId} failed`)
-            };
-          } else if (task2.status === "cancelled") {
-            yield {
-              type: "error",
-              error: new McpError(ErrorCode.InternalError, `Task ${taskId} was cancelled`)
-            };
-          }
-          return;
-        }
-        if (task2.status === "input_required") {
-          const result = await this.getTaskResult({ taskId }, resultSchema, options);
-          yield { type: "result", result };
-          return;
-        }
-        const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1000;
-        await new Promise((resolve) => setTimeout(resolve, pollInterval));
-        options?.signal?.throwIfAborted();
-      }
-    } catch (error2) {
-      yield {
-        type: "error",
-        error: error2 instanceof McpError ? error2 : new McpError(ErrorCode.InternalError, String(error2))
-      };
-    }
-  }
-  request(request, resultSchema, options) {
-    const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
-    return new Promise((resolve, reject) => {
-      const earlyReject = (error2) => {
-        reject(error2);
-      };
-      if (!this._transport) {
-        earlyReject(new Error("Not connected"));
-        return;
-      }
-      if (this._options?.enforceStrictCapabilities === true) {
-        try {
-          this.assertCapabilityForMethod(request.method);
-          if (task) {
-            this.assertTaskCapability(request.method);
-          }
-        } catch (e) {
-          earlyReject(e);
-          return;
-        }
-      }
-      options?.signal?.throwIfAborted();
-      const messageId = this._requestMessageId++;
-      const jsonrpcRequest = {
-        ...request,
-        jsonrpc: "2.0",
-        id: messageId
-      };
-      if (options?.onprogress) {
-        this._progressHandlers.set(messageId, options.onprogress);
-        jsonrpcRequest.params = {
-          ...request.params,
-          _meta: {
-            ...request.params?._meta || {},
-            progressToken: messageId
-          }
-        };
-      }
-      if (task) {
-        jsonrpcRequest.params = {
-          ...jsonrpcRequest.params,
-          task
-        };
-      }
-      if (relatedTask) {
-        jsonrpcRequest.params = {
-          ...jsonrpcRequest.params,
-          _meta: {
-            ...jsonrpcRequest.params?._meta || {},
-            [RELATED_TASK_META_KEY]: relatedTask
-          }
-        };
-      }
-      const cancel = (reason) => {
-        this._responseHandlers.delete(messageId);
-        this._progressHandlers.delete(messageId);
-        this._cleanupTimeout(messageId);
-        this._transport?.send({
-          jsonrpc: "2.0",
-          method: "notifications/cancelled",
-          params: {
-            requestId: messageId,
-            reason: String(reason)
-          }
-        }, { relatedRequestId, resumptionToken, onresumptiontoken }).catch((error3) => this._onerror(new Error(`Failed to send cancellation: ${error3}`)));
-        const error2 = reason instanceof McpError ? reason : new McpError(ErrorCode.RequestTimeout, String(reason));
-        reject(error2);
-      };
-      this._responseHandlers.set(messageId, (response) => {
-        if (options?.signal?.aborted) {
-          return;
-        }
-        if (response instanceof Error) {
-          return reject(response);
-        }
-        try {
-          const parseResult = safeParse2(resultSchema, response.result);
-          if (!parseResult.success) {
-            reject(parseResult.error);
-          } else {
-            resolve(parseResult.data);
-          }
-        } catch (error2) {
-          reject(error2);
-        }
-      });
-      options?.signal?.addEventListener("abort", () => {
-        cancel(options?.signal?.reason);
-      });
-      const timeout = options?.timeout ?? DEFAULT_REQUEST_TIMEOUT_MSEC;
-      const timeoutHandler = () => cancel(McpError.fromError(ErrorCode.RequestTimeout, "Request timed out", { timeout }));
-      this._setupTimeout(messageId, timeout, options?.maxTotalTimeout, timeoutHandler, options?.resetTimeoutOnProgress ?? false);
-      const relatedTaskId = relatedTask?.taskId;
-      if (relatedTaskId) {
-        const responseResolver = (response) => {
-          const handler = this._responseHandlers.get(messageId);
-          if (handler) {
-            handler(response);
-          } else {
-            this._onerror(new Error(`Response handler missing for side-channeled request ${messageId}`));
-          }
-        };
-        this._requestResolvers.set(messageId, responseResolver);
-        this._enqueueTaskMessage(relatedTaskId, {
-          type: "request",
-          message: jsonrpcRequest,
-          timestamp: Date.now()
-        }).catch((error2) => {
-          this._cleanupTimeout(messageId);
-          reject(error2);
-        });
-      } else {
-        this._transport.send(jsonrpcRequest, { relatedRequestId, resumptionToken, onresumptiontoken }).catch((error2) => {
-          this._cleanupTimeout(messageId);
-          reject(error2);
-        });
-      }
-    });
-  }
-  async getTask(params, options) {
-    return this.request({ method: "tasks/get", params }, GetTaskResultSchema, options);
-  }
-  async getTaskResult(params, resultSchema, options) {
-    return this.request({ method: "tasks/result", params }, resultSchema, options);
-  }
-  async listTasks(params, options) {
-    return this.request({ method: "tasks/list", params }, ListTasksResultSchema, options);
-  }
-  async cancelTask(params, options) {
-    return this.request({ method: "tasks/cancel", params }, CancelTaskResultSchema, options);
-  }
-  async notification(notification, options) {
-    if (!this._transport) {
-      throw new Error("Not connected");
-    }
-    this.assertNotificationCapability(notification.method);
-    const relatedTaskId = options?.relatedTask?.taskId;
-    if (relatedTaskId) {
-      const jsonrpcNotification2 = {
-        ...notification,
-        jsonrpc: "2.0",
-        params: {
-          ...notification.params,
-          _meta: {
-            ...notification.params?._meta || {},
-            [RELATED_TASK_META_KEY]: options.relatedTask
-          }
-        }
-      };
-      await this._enqueueTaskMessage(relatedTaskId, {
-        type: "notification",
-        message: jsonrpcNotification2,
-        timestamp: Date.now()
-      });
-      return;
-    }
-    const debouncedMethods = this._options?.debouncedNotificationMethods ?? [];
-    const canDebounce = debouncedMethods.includes(notification.method) && !notification.params && !options?.relatedRequestId && !options?.relatedTask;
-    if (canDebounce) {
-      if (this._pendingDebouncedNotifications.has(notification.method)) {
-        return;
-      }
-      this._pendingDebouncedNotifications.add(notification.method);
-      Promise.resolve().then(() => {
-        this._pendingDebouncedNotifications.delete(notification.method);
-        if (!this._transport) {
-          return;
-        }
-        let jsonrpcNotification2 = {
-          ...notification,
-          jsonrpc: "2.0"
-        };
-        if (options?.relatedTask) {
-          jsonrpcNotification2 = {
-            ...jsonrpcNotification2,
-            params: {
-              ...jsonrpcNotification2.params,
-              _meta: {
-                ...jsonrpcNotification2.params?._meta || {},
-                [RELATED_TASK_META_KEY]: options.relatedTask
-              }
-            }
-          };
-        }
-        this._transport?.send(jsonrpcNotification2, options).catch((error2) => this._onerror(error2));
-      });
-      return;
-    }
-    let jsonrpcNotification = {
-      ...notification,
-      jsonrpc: "2.0"
-    };
-    if (options?.relatedTask) {
-      jsonrpcNotification = {
-        ...jsonrpcNotification,
-        params: {
-          ...jsonrpcNotification.params,
-          _meta: {
-            ...jsonrpcNotification.params?._meta || {},
-            [RELATED_TASK_META_KEY]: options.relatedTask
-          }
-        }
-      };
-    }
-    await this._transport.send(jsonrpcNotification, options);
-  }
-  setRequestHandler(requestSchema, handler) {
-    const method = getMethodLiteral(requestSchema);
-    this.assertRequestHandlerCapability(method);
-    this._requestHandlers.set(method, (request, extra) => {
-      const parsed = parseWithCompat(requestSchema, request);
-      return Promise.resolve(handler(parsed, extra));
-    });
-  }
-  removeRequestHandler(method) {
-    this._requestHandlers.delete(method);
-  }
-  assertCanSetRequestHandler(method) {
-    if (this._requestHandlers.has(method)) {
-      throw new Error(`A request handler for ${method} already exists, which would be overridden`);
-    }
-  }
-  setNotificationHandler(notificationSchema, handler) {
-    const method = getMethodLiteral(notificationSchema);
-    this._notificationHandlers.set(method, (notification) => {
-      const parsed = parseWithCompat(notificationSchema, notification);
-      return Promise.resolve(handler(parsed));
-    });
-  }
-  removeNotificationHandler(method) {
-    this._notificationHandlers.delete(method);
-  }
-  _cleanupTaskProgressHandler(taskId) {
-    const progressToken = this._taskProgressTokens.get(taskId);
-    if (progressToken !== undefined) {
-      this._progressHandlers.delete(progressToken);
-      this._taskProgressTokens.delete(taskId);
-    }
-  }
-  async _enqueueTaskMessage(taskId, message, sessionId) {
-    if (!this._taskStore || !this._taskMessageQueue) {
-      throw new Error("Cannot enqueue task message: taskStore and taskMessageQueue are not configured");
-    }
-    const maxQueueSize = this._options?.maxTaskQueueSize;
-    await this._taskMessageQueue.enqueue(taskId, message, sessionId, maxQueueSize);
-  }
-  async _clearTaskQueue(taskId, sessionId) {
-    if (this._taskMessageQueue) {
-      const messages = await this._taskMessageQueue.dequeueAll(taskId, sessionId);
-      for (const message of messages) {
-        if (message.type === "request" && isJSONRPCRequest(message.message)) {
-          const requestId = message.message.id;
-          const resolver = this._requestResolvers.get(requestId);
-          if (resolver) {
-            resolver(new McpError(ErrorCode.InternalError, "Task cancelled or completed"));
-            this._requestResolvers.delete(requestId);
-          } else {
-            this._onerror(new Error(`Resolver missing for request ${requestId} during task ${taskId} cleanup`));
-          }
-        }
-      }
-    }
-  }
-  async _waitForTaskUpdate(taskId, signal) {
-    let interval = this._options?.defaultTaskPollInterval ?? 1000;
-    try {
-      const task = await this._taskStore?.getTask(taskId);
-      if (task?.pollInterval) {
-        interval = task.pollInterval;
-      }
-    } catch {}
-    return new Promise((resolve, reject) => {
-      if (signal.aborted) {
-        reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
-        return;
-      }
-      const timeoutId = setTimeout(resolve, interval);
-      signal.addEventListener("abort", () => {
-        clearTimeout(timeoutId);
-        reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
-      }, { once: true });
-    });
-  }
-  requestTaskStore(request, sessionId) {
-    const taskStore = this._taskStore;
-    if (!taskStore) {
-      throw new Error("No task store configured");
-    }
-    return {
-      createTask: async (taskParams) => {
-        if (!request) {
-          throw new Error("No request provided");
-        }
-        return await taskStore.createTask(taskParams, request.id, {
-          method: request.method,
-          params: request.params
-        }, sessionId);
-      },
-      getTask: async (taskId) => {
-        const task = await taskStore.getTask(taskId, sessionId);
-        if (!task) {
-          throw new McpError(ErrorCode.InvalidParams, "Failed to retrieve task: Task not found");
-        }
-        return task;
-      },
-      storeTaskResult: async (taskId, status, result) => {
-        await taskStore.storeTaskResult(taskId, status, result, sessionId);
-        const task = await taskStore.getTask(taskId, sessionId);
-        if (task) {
-          const notification = TaskStatusNotificationSchema.parse({
-            method: "notifications/tasks/status",
-            params: task
-          });
-          await this.notification(notification);
-          if (isTerminal(task.status)) {
-            this._cleanupTaskProgressHandler(taskId);
-          }
-        }
-      },
-      getTaskResult: (taskId) => {
-        return taskStore.getTaskResult(taskId, sessionId);
-      },
-      updateTaskStatus: async (taskId, status, statusMessage) => {
-        const task = await taskStore.getTask(taskId, sessionId);
-        if (!task) {
-          throw new McpError(ErrorCode.InvalidParams, `Task "${taskId}" not found - it may have been cleaned up`);
-        }
-        if (isTerminal(task.status)) {
-          throw new McpError(ErrorCode.InvalidParams, `Cannot update task "${taskId}" from terminal status "${task.status}" to "${status}". Terminal states (completed, failed, cancelled) cannot transition to other states.`);
-        }
-        await taskStore.updateTaskStatus(taskId, status, statusMessage, sessionId);
-        const updatedTask = await taskStore.getTask(taskId, sessionId);
-        if (updatedTask) {
-          const notification = TaskStatusNotificationSchema.parse({
-            method: "notifications/tasks/status",
-            params: updatedTask
-          });
-          await this.notification(notification);
-          if (isTerminal(updatedTask.status)) {
-            this._cleanupTaskProgressHandler(taskId);
-          }
-        }
-      },
-      listTasks: (cursor) => {
-        return taskStore.listTasks(cursor, sessionId);
-      }
-    };
-  }
-}
-function isPlainObject2(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-function mergeCapabilities(base, additional) {
-  const result = { ...base };
-  for (const key in additional) {
-    const k = key;
-    const addValue = additional[k];
-    if (addValue === undefined)
-      continue;
-    const baseValue = result[k];
-    if (isPlainObject2(baseValue) && isPlainObject2(addValue)) {
-      result[k] = { ...baseValue, ...addValue };
-    } else {
-      result[k] = addValue;
-    }
-  }
-  return result;
-}
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
-var import_ajv = __toESM(require_ajv(), 1);
-var import_ajv_formats = __toESM(require_dist(), 1);
-function createDefaultAjvInstance() {
-  const ajv = new import_ajv.default({
-    strict: false,
-    validateFormats: true,
-    validateSchema: false,
-    allErrors: true
-  });
-  const addFormats = import_ajv_formats.default;
-  addFormats(ajv);
-  return ajv;
-}
-
-class AjvJsonSchemaValidator {
-  constructor(ajv) {
-    this._ajv = ajv ?? createDefaultAjvInstance();
-  }
-  getValidator(schema) {
-    const ajvValidator = "$id" in schema && typeof schema.$id === "string" ? this._ajv.getSchema(schema.$id) ?? this._ajv.compile(schema) : this._ajv.compile(schema);
-    return (input) => {
-      const valid = ajvValidator(input);
-      if (valid) {
-        return {
-          valid: true,
-          data: input,
-          errorMessage: undefined
-        };
-      } else {
-        return {
-          valid: false,
-          data: undefined,
-          errorMessage: this._ajv.errorsText(ajvValidator.errors)
-        };
-      }
-    };
-  }
-}
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
-class ExperimentalServerTasks {
-  constructor(_server) {
-    this._server = _server;
-  }
-  requestStream(request, resultSchema, options) {
-    return this._server.requestStream(request, resultSchema, options);
-  }
-  createMessageStream(params, options) {
-    const clientCapabilities = this._server.getClientCapabilities();
-    if ((params.tools || params.toolChoice) && !clientCapabilities?.sampling?.tools) {
-      throw new Error("Client does not support sampling tools capability.");
-    }
-    if (params.messages.length > 0) {
-      const lastMessage = params.messages[params.messages.length - 1];
-      const lastContent = Array.isArray(lastMessage.content) ? lastMessage.content : [lastMessage.content];
-      const hasToolResults = lastContent.some((c) => c.type === "tool_result");
-      const previousMessage = params.messages.length > 1 ? params.messages[params.messages.length - 2] : undefined;
-      const previousContent = previousMessage ? Array.isArray(previousMessage.content) ? previousMessage.content : [previousMessage.content] : [];
-      const hasPreviousToolUse = previousContent.some((c) => c.type === "tool_use");
-      if (hasToolResults) {
-        if (lastContent.some((c) => c.type !== "tool_result")) {
-          throw new Error("The last message must contain only tool_result content if any is present");
-        }
-        if (!hasPreviousToolUse) {
-          throw new Error("tool_result blocks are not matching any tool_use from the previous message");
-        }
-      }
-      if (hasPreviousToolUse) {
-        const toolUseIds = new Set(previousContent.filter((c) => c.type === "tool_use").map((c) => c.id));
-        const toolResultIds = new Set(lastContent.filter((c) => c.type === "tool_result").map((c) => c.toolUseId));
-        if (toolUseIds.size !== toolResultIds.size || ![...toolUseIds].every((id) => toolResultIds.has(id))) {
-          throw new Error("ids of tool_result blocks and tool_use blocks from previous message do not match");
-        }
-      }
-    }
-    return this.requestStream({
-      method: "sampling/createMessage",
-      params
-    }, CreateMessageResultSchema, options);
-  }
-  elicitInputStream(params, options) {
-    const clientCapabilities = this._server.getClientCapabilities();
-    const mode = params.mode ?? "form";
-    switch (mode) {
-      case "url": {
-        if (!clientCapabilities?.elicitation?.url) {
-          throw new Error("Client does not support url elicitation.");
-        }
-        break;
-      }
-      case "form": {
-        if (!clientCapabilities?.elicitation?.form) {
-          throw new Error("Client does not support form elicitation.");
-        }
-        break;
-      }
-    }
-    const normalizedParams = mode === "form" && params.mode === undefined ? { ...params, mode: "form" } : params;
-    return this.requestStream({
-      method: "elicitation/create",
-      params: normalizedParams
-    }, ElicitResultSchema, options);
-  }
-  async getTask(taskId, options) {
-    return this._server.getTask({ taskId }, options);
-  }
-  async getTaskResult(taskId, resultSchema, options) {
-    return this._server.getTaskResult({ taskId }, resultSchema, options);
-  }
-  async listTasks(cursor, options) {
-    return this._server.listTasks(cursor ? { cursor } : undefined, options);
-  }
-  async cancelTask(taskId, options) {
-    return this._server.cancelTask({ taskId }, options);
-  }
-}
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
-function assertToolsCallTaskCapability(requests, method, entityName) {
-  if (!requests) {
-    throw new Error(`${entityName} does not support task creation (required for ${method})`);
-  }
-  switch (method) {
-    case "tools/call":
-      if (!requests.tools?.call) {
-        throw new Error(`${entityName} does not support task creation for tools/call (required for ${method})`);
-      }
-      break;
-    default:
-      break;
-  }
-}
-function assertClientRequestTaskCapability(requests, method, entityName) {
-  if (!requests) {
-    throw new Error(`${entityName} does not support task creation (required for ${method})`);
-  }
-  switch (method) {
-    case "sampling/createMessage":
-      if (!requests.sampling?.createMessage) {
-        throw new Error(`${entityName} does not support task creation for sampling/createMessage (required for ${method})`);
-      }
-      break;
-    case "elicitation/create":
-      if (!requests.elicitation?.create) {
-        throw new Error(`${entityName} does not support task creation for elicitation/create (required for ${method})`);
-      }
-      break;
-    default:
-      break;
-  }
-}
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
-class Server extends Protocol {
-  constructor(_serverInfo, options) {
-    super(options);
-    this._serverInfo = _serverInfo;
-    this._loggingLevels = new Map;
-    this.LOG_LEVEL_SEVERITY = new Map(LoggingLevelSchema.options.map((level, index) => [level, index]));
-    this.isMessageIgnored = (level, sessionId) => {
-      const currentLevel = this._loggingLevels.get(sessionId);
-      return currentLevel ? this.LOG_LEVEL_SEVERITY.get(level) < this.LOG_LEVEL_SEVERITY.get(currentLevel) : false;
-    };
-    this._capabilities = options?.capabilities ?? {};
-    this._instructions = options?.instructions;
-    this._jsonSchemaValidator = options?.jsonSchemaValidator ?? new AjvJsonSchemaValidator;
-    this.setRequestHandler(InitializeRequestSchema, (request) => this._oninitialize(request));
-    this.setNotificationHandler(InitializedNotificationSchema, () => this.oninitialized?.());
-    if (this._capabilities.logging) {
-      this.setRequestHandler(SetLevelRequestSchema, async (request, extra) => {
-        const transportSessionId = extra.sessionId || extra.requestInfo?.headers["mcp-session-id"] || undefined;
-        const { level } = request.params;
-        const parseResult = LoggingLevelSchema.safeParse(level);
-        if (parseResult.success) {
-          this._loggingLevels.set(transportSessionId, parseResult.data);
-        }
-        return {};
-      });
-    }
-  }
-  get experimental() {
-    if (!this._experimental) {
-      this._experimental = {
-        tasks: new ExperimentalServerTasks(this)
-      };
-    }
-    return this._experimental;
-  }
-  registerCapabilities(capabilities) {
-    if (this.transport) {
-      throw new Error("Cannot register capabilities after connecting to transport");
-    }
-    this._capabilities = mergeCapabilities(this._capabilities, capabilities);
-  }
-  setRequestHandler(requestSchema, handler) {
-    const shape = getObjectShape(requestSchema);
-    const methodSchema = shape?.method;
-    if (!methodSchema) {
-      throw new Error("Schema is missing a method literal");
-    }
-    let methodValue;
-    if (isZ4Schema(methodSchema)) {
-      const v4Schema = methodSchema;
-      const v4Def = v4Schema._zod?.def;
-      methodValue = v4Def?.value ?? v4Schema.value;
-    } else {
-      const v3Schema = methodSchema;
-      const legacyDef = v3Schema._def;
-      methodValue = legacyDef?.value ?? v3Schema.value;
-    }
-    if (typeof methodValue !== "string") {
-      throw new Error("Schema method literal must be a string");
-    }
-    const method = methodValue;
-    if (method === "tools/call") {
-      const wrappedHandler = async (request, extra) => {
-        const validatedRequest = safeParse2(CallToolRequestSchema, request);
-        if (!validatedRequest.success) {
-          const errorMessage = validatedRequest.error instanceof Error ? validatedRequest.error.message : String(validatedRequest.error);
-          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call request: ${errorMessage}`);
-        }
-        const { params } = validatedRequest.data;
-        const result = await Promise.resolve(handler(request, extra));
-        if (params.task) {
-          const taskValidationResult = safeParse2(CreateTaskResultSchema, result);
-          if (!taskValidationResult.success) {
-            const errorMessage = taskValidationResult.error instanceof Error ? taskValidationResult.error.message : String(taskValidationResult.error);
-            throw new McpError(ErrorCode.InvalidParams, `Invalid task creation result: ${errorMessage}`);
-          }
-          return taskValidationResult.data;
-        }
-        const validationResult = safeParse2(CallToolResultSchema, result);
-        if (!validationResult.success) {
-          const errorMessage = validationResult.error instanceof Error ? validationResult.error.message : String(validationResult.error);
-          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call result: ${errorMessage}`);
-        }
-        return validationResult.data;
-      };
-      return super.setRequestHandler(requestSchema, wrappedHandler);
-    }
-    return super.setRequestHandler(requestSchema, handler);
-  }
-  assertCapabilityForMethod(method) {
-    switch (method) {
-      case "sampling/createMessage":
-        if (!this._clientCapabilities?.sampling) {
-          throw new Error(`Client does not support sampling (required for ${method})`);
-        }
-        break;
-      case "elicitation/create":
-        if (!this._clientCapabilities?.elicitation) {
-          throw new Error(`Client does not support elicitation (required for ${method})`);
-        }
-        break;
-      case "roots/list":
-        if (!this._clientCapabilities?.roots) {
-          throw new Error(`Client does not support listing roots (required for ${method})`);
-        }
-        break;
-      case "ping":
-        break;
-    }
-  }
-  assertNotificationCapability(method) {
-    switch (method) {
-      case "notifications/message":
-        if (!this._capabilities.logging) {
-          throw new Error(`Server does not support logging (required for ${method})`);
-        }
-        break;
-      case "notifications/resources/updated":
-      case "notifications/resources/list_changed":
-        if (!this._capabilities.resources) {
-          throw new Error(`Server does not support notifying about resources (required for ${method})`);
-        }
-        break;
-      case "notifications/tools/list_changed":
-        if (!this._capabilities.tools) {
-          throw new Error(`Server does not support notifying of tool list changes (required for ${method})`);
-        }
-        break;
-      case "notifications/prompts/list_changed":
-        if (!this._capabilities.prompts) {
-          throw new Error(`Server does not support notifying of prompt list changes (required for ${method})`);
-        }
-        break;
-      case "notifications/elicitation/complete":
-        if (!this._clientCapabilities?.elicitation?.url) {
-          throw new Error(`Client does not support URL elicitation (required for ${method})`);
-        }
-        break;
-      case "notifications/cancelled":
-        break;
-      case "notifications/progress":
-        break;
-    }
-  }
-  assertRequestHandlerCapability(method) {
-    if (!this._capabilities) {
-      return;
-    }
-    switch (method) {
-      case "completion/complete":
-        if (!this._capabilities.completions) {
-          throw new Error(`Server does not support completions (required for ${method})`);
-        }
-        break;
-      case "logging/setLevel":
-        if (!this._capabilities.logging) {
-          throw new Error(`Server does not support logging (required for ${method})`);
-        }
-        break;
-      case "prompts/get":
-      case "prompts/list":
-        if (!this._capabilities.prompts) {
-          throw new Error(`Server does not support prompts (required for ${method})`);
-        }
-        break;
-      case "resources/list":
-      case "resources/templates/list":
-      case "resources/read":
-        if (!this._capabilities.resources) {
-          throw new Error(`Server does not support resources (required for ${method})`);
-        }
-        break;
-      case "tools/call":
-      case "tools/list":
-        if (!this._capabilities.tools) {
-          throw new Error(`Server does not support tools (required for ${method})`);
-        }
-        break;
-      case "tasks/get":
-      case "tasks/list":
-      case "tasks/result":
-      case "tasks/cancel":
-        if (!this._capabilities.tasks) {
-          throw new Error(`Server does not support tasks capability (required for ${method})`);
-        }
-        break;
-      case "ping":
-      case "initialize":
-        break;
-    }
-  }
-  assertTaskCapability(method) {
-    assertClientRequestTaskCapability(this._clientCapabilities?.tasks?.requests, method, "Client");
-  }
-  assertTaskHandlerCapability(method) {
-    if (!this._capabilities) {
-      return;
-    }
-    assertToolsCallTaskCapability(this._capabilities.tasks?.requests, method, "Server");
-  }
-  async _oninitialize(request) {
-    const requestedVersion = request.params.protocolVersion;
-    this._clientCapabilities = request.params.capabilities;
-    this._clientVersion = request.params.clientInfo;
-    const protocolVersion = SUPPORTED_PROTOCOL_VERSIONS.includes(requestedVersion) ? requestedVersion : LATEST_PROTOCOL_VERSION;
-    return {
-      protocolVersion,
-      capabilities: this.getCapabilities(),
-      serverInfo: this._serverInfo,
-      ...this._instructions && { instructions: this._instructions }
-    };
-  }
-  getClientCapabilities() {
-    return this._clientCapabilities;
-  }
-  getClientVersion() {
-    return this._clientVersion;
-  }
-  getCapabilities() {
-    return this._capabilities;
-  }
-  async ping() {
-    return this.request({ method: "ping" }, EmptyResultSchema);
-  }
-  async createMessage(params, options) {
-    if (params.tools || params.toolChoice) {
-      if (!this._clientCapabilities?.sampling?.tools) {
-        throw new Error("Client does not support sampling tools capability.");
-      }
-    }
-    if (params.messages.length > 0) {
-      const lastMessage = params.messages[params.messages.length - 1];
-      const lastContent = Array.isArray(lastMessage.content) ? lastMessage.content : [lastMessage.content];
-      const hasToolResults = lastContent.some((c) => c.type === "tool_result");
-      const previousMessage = params.messages.length > 1 ? params.messages[params.messages.length - 2] : undefined;
-      const previousContent = previousMessage ? Array.isArray(previousMessage.content) ? previousMessage.content : [previousMessage.content] : [];
-      const hasPreviousToolUse = previousContent.some((c) => c.type === "tool_use");
-      if (hasToolResults) {
-        if (lastContent.some((c) => c.type !== "tool_result")) {
-          throw new Error("The last message must contain only tool_result content if any is present");
-        }
-        if (!hasPreviousToolUse) {
-          throw new Error("tool_result blocks are not matching any tool_use from the previous message");
-        }
-      }
-      if (hasPreviousToolUse) {
-        const toolUseIds = new Set(previousContent.filter((c) => c.type === "tool_use").map((c) => c.id));
-        const toolResultIds = new Set(lastContent.filter((c) => c.type === "tool_result").map((c) => c.toolUseId));
-        if (toolUseIds.size !== toolResultIds.size || ![...toolUseIds].every((id) => toolResultIds.has(id))) {
-          throw new Error("ids of tool_result blocks and tool_use blocks from previous message do not match");
-        }
-      }
-    }
-    if (params.tools) {
-      return this.request({ method: "sampling/createMessage", params }, CreateMessageResultWithToolsSchema, options);
-    }
-    return this.request({ method: "sampling/createMessage", params }, CreateMessageResultSchema, options);
-  }
-  async elicitInput(params, options) {
-    const mode = params.mode ?? "form";
-    switch (mode) {
-      case "url": {
-        if (!this._clientCapabilities?.elicitation?.url) {
-          throw new Error("Client does not support url elicitation.");
-        }
-        const urlParams = params;
-        return this.request({ method: "elicitation/create", params: urlParams }, ElicitResultSchema, options);
-      }
-      case "form": {
-        if (!this._clientCapabilities?.elicitation?.form) {
-          throw new Error("Client does not support form elicitation.");
-        }
-        const formParams = params.mode === "form" ? params : { ...params, mode: "form" };
-        const result = await this.request({ method: "elicitation/create", params: formParams }, ElicitResultSchema, options);
-        if (result.action === "accept" && result.content && formParams.requestedSchema) {
-          try {
-            const validator = this._jsonSchemaValidator.getValidator(formParams.requestedSchema);
-            const validationResult = validator(result.content);
-            if (!validationResult.valid) {
-              throw new McpError(ErrorCode.InvalidParams, `Elicitation response content does not match requested schema: ${validationResult.errorMessage}`);
-            }
-          } catch (error2) {
-            if (error2 instanceof McpError) {
-              throw error2;
-            }
-            throw new McpError(ErrorCode.InternalError, `Error validating elicitation response: ${error2 instanceof Error ? error2.message : String(error2)}`);
-          }
-        }
-        return result;
-      }
-    }
-  }
-  createElicitationCompletionNotifier(elicitationId, options) {
-    if (!this._clientCapabilities?.elicitation?.url) {
-      throw new Error("Client does not support URL elicitation (required for notifications/elicitation/complete)");
-    }
-    return () => this.notification({
-      method: "notifications/elicitation/complete",
-      params: {
-        elicitationId
-      }
-    }, options);
-  }
-  async listRoots(params, options) {
-    return this.request({ method: "roots/list", params }, ListRootsResultSchema, options);
-  }
-  async sendLoggingMessage(params, sessionId) {
-    if (this._capabilities.logging) {
-      if (!this.isMessageIgnored(params.level, sessionId)) {
-        return this.notification({ method: "notifications/message", params });
-      }
-    }
-  }
-  async sendResourceUpdated(params) {
-    return this.notification({
-      method: "notifications/resources/updated",
-      params
-    });
-  }
-  async sendResourceListChanged() {
-    return this.notification({
-      method: "notifications/resources/list_changed"
-    });
-  }
-  async sendToolListChanged() {
-    return this.notification({ method: "notifications/tools/list_changed" });
-  }
-  async sendPromptListChanged() {
-    return this.notification({ method: "notifications/prompts/list_changed" });
-  }
-}
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
-import process2 from "process";
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
 class ReadBuffer {
@@ -12795,10 +11375,10 @@ var util;
       return obj[e];
     });
   };
-  util2.objectKeys = typeof Object.keys === "function" ? (obj) => Object.keys(obj) : (object4) => {
+  util2.objectKeys = typeof Object.keys === "function" ? (obj) => Object.keys(obj) : (object2) => {
     const keys = [];
-    for (const key in object4) {
-      if (Object.prototype.hasOwnProperty.call(object4, key)) {
+    for (const key in object2) {
+      if (Object.prototype.hasOwnProperty.call(object2, key)) {
         keys.push(key);
       }
     }
@@ -12812,8 +11392,8 @@ var util;
     return;
   };
   util2.isInteger = typeof Number.isInteger === "function" ? (val) => Number.isInteger(val) : (val) => typeof val === "number" && Number.isFinite(val) && Math.floor(val) === val;
-  function joinValues2(array3, separator = " | ") {
-    return array3.map((val) => typeof val === "string" ? `'${val}'` : val).join(separator);
+  function joinValues2(array2, separator = " | ") {
+    return array2.map((val) => typeof val === "string" ? `'${val}'` : val).join(separator);
   }
   util2.joinValues = joinValues2;
   util2.jsonStringifyReplacer = (_, value) => {
@@ -13120,8 +11700,8 @@ var en_default2 = errorMap;
 
 // ../vibegroup-protocol/node_modules/zod/v3/errors.js
 var overrideErrorMap = en_default2;
-function setErrorMap(map2) {
-  overrideErrorMap = map2;
+function setErrorMap(map) {
+  overrideErrorMap = map;
 }
 function getErrorMap() {
   return overrideErrorMap;
@@ -13143,8 +11723,8 @@ var makeIssue = (params) => {
   }
   let errorMessage = "";
   const maps = errorMaps.filter((m) => !!m).slice().reverse();
-  for (const map2 of maps) {
-    errorMessage = map2(fullIssue, { data, defaultError: errorMessage }).message;
+  for (const map of maps) {
+    errorMessage = map(fullIssue, { data, defaultError: errorMessage }).message;
   }
   return {
     ...issueData,
@@ -16718,8 +15298,19 @@ class RelayClient {
       this.joinWaiter = { resolve, reject };
       ws.addEventListener("open", () => this.send({ kind: "join", resumeToken: this.resumeToken, body: { room: this.opts.room, token: this.opts.token, name: this.opts.name } }));
       ws.addEventListener("message", (ev) => this.dispatch(parseEnvelope(String(ev.data))));
-      ws.addEventListener("error", () => reject(new Error("websocket error")));
+      ws.addEventListener("error", () => this.failPending(new Error("websocket error")));
+      ws.addEventListener("close", () => this.failPending(new Error("websocket closed")));
     });
+  }
+  failPending(err) {
+    this.joinWaiter?.reject(err);
+    this.joinWaiter = undefined;
+    for (const w of this.ackWaiters.values())
+      w.reject(err);
+    this.ackWaiters.clear();
+    for (const resolve of this.peersWaiters)
+      resolve([]);
+    this.peersWaiters = [];
   }
   send(e) {
     this.ws.send(serialize({ v: 1, id: newMsgId(), ts: Date.now(), ...e }));
@@ -16785,6 +15376,1441 @@ class RelayClient {
   close() {
     this.ws?.close();
   }
+}
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+function isZ4Schema(s) {
+  const schema = s;
+  return !!schema._zod;
+}
+function safeParse3(schema, data) {
+  if (isZ4Schema(schema)) {
+    const result2 = safeParse(schema, data);
+    return result2;
+  }
+  const v3Schema = schema;
+  const result = v3Schema.safeParse(data);
+  return result;
+}
+function getObjectShape(schema) {
+  if (!schema)
+    return;
+  let rawShape;
+  if (isZ4Schema(schema)) {
+    const v4Schema = schema;
+    rawShape = v4Schema._zod?.def?.shape;
+  } else {
+    const v3Schema = schema;
+    rawShape = v3Schema.shape;
+  }
+  if (!rawShape)
+    return;
+  if (typeof rawShape === "function") {
+    try {
+      return rawShape();
+    } catch {
+      return;
+    }
+  }
+  return rawShape;
+}
+function getLiteralValue(schema) {
+  if (isZ4Schema(schema)) {
+    const v4Schema = schema;
+    const def2 = v4Schema._zod?.def;
+    if (def2) {
+      if (def2.value !== undefined)
+        return def2.value;
+      if (Array.isArray(def2.values) && def2.values.length > 0) {
+        return def2.values[0];
+      }
+    }
+  }
+  const v3Schema = schema;
+  const def = v3Schema._def;
+  if (def) {
+    if (def.value !== undefined)
+      return def.value;
+    if (Array.isArray(def.values) && def.values.length > 0) {
+      return def.values[0];
+    }
+  }
+  const directValue = schema.value;
+  if (directValue !== undefined)
+    return directValue;
+  return;
+}
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+function isTerminal(status) {
+  return status === "completed" || status === "failed" || status === "cancelled";
+}
+
+// node_modules/zod-to-json-schema/dist/esm/Options.js
+var ignoreOverride = Symbol("Let zodToJsonSchema decide on which parser to use");
+// node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+var ALPHA_NUMERIC = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+function getMethodLiteral(schema) {
+  const shape = getObjectShape(schema);
+  const methodSchema = shape?.method;
+  if (!methodSchema) {
+    throw new Error("Schema is missing a method literal");
+  }
+  const value = getLiteralValue(methodSchema);
+  if (typeof value !== "string") {
+    throw new Error("Schema method literal must be a string");
+  }
+  return value;
+}
+function parseWithCompat(schema, data) {
+  const result = safeParse3(schema, data);
+  if (!result.success) {
+    throw result.error;
+  }
+  return result.data;
+}
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+var DEFAULT_REQUEST_TIMEOUT_MSEC = 60000;
+
+class Protocol {
+  constructor(_options) {
+    this._options = _options;
+    this._requestMessageId = 0;
+    this._requestHandlers = new Map;
+    this._requestHandlerAbortControllers = new Map;
+    this._notificationHandlers = new Map;
+    this._responseHandlers = new Map;
+    this._progressHandlers = new Map;
+    this._timeoutInfo = new Map;
+    this._pendingDebouncedNotifications = new Set;
+    this._taskProgressTokens = new Map;
+    this._requestResolvers = new Map;
+    this.setNotificationHandler(CancelledNotificationSchema, (notification) => {
+      this._oncancel(notification);
+    });
+    this.setNotificationHandler(ProgressNotificationSchema, (notification) => {
+      this._onprogress(notification);
+    });
+    this.setRequestHandler(PingRequestSchema, (_request) => ({}));
+    this._taskStore = _options?.taskStore;
+    this._taskMessageQueue = _options?.taskMessageQueue;
+    if (this._taskStore) {
+      this.setRequestHandler(GetTaskRequestSchema, async (request, extra) => {
+        const task = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
+        if (!task) {
+          throw new McpError(ErrorCode.InvalidParams, "Failed to retrieve task: Task not found");
+        }
+        return {
+          ...task
+        };
+      });
+      this.setRequestHandler(GetTaskPayloadRequestSchema, async (request, extra) => {
+        const handleTaskResult = async () => {
+          const taskId = request.params.taskId;
+          if (this._taskMessageQueue) {
+            let queuedMessage;
+            while (queuedMessage = await this._taskMessageQueue.dequeue(taskId, extra.sessionId)) {
+              if (queuedMessage.type === "response" || queuedMessage.type === "error") {
+                const message = queuedMessage.message;
+                const requestId = message.id;
+                const resolver = this._requestResolvers.get(requestId);
+                if (resolver) {
+                  this._requestResolvers.delete(requestId);
+                  if (queuedMessage.type === "response") {
+                    resolver(message);
+                  } else {
+                    const errorMessage = message;
+                    const error2 = new McpError(errorMessage.error.code, errorMessage.error.message, errorMessage.error.data);
+                    resolver(error2);
+                  }
+                } else {
+                  const messageType = queuedMessage.type === "response" ? "Response" : "Error";
+                  this._onerror(new Error(`${messageType} handler missing for request ${requestId}`));
+                }
+                continue;
+              }
+              await this._transport?.send(queuedMessage.message, { relatedRequestId: extra.requestId });
+            }
+          }
+          const task = await this._taskStore.getTask(taskId, extra.sessionId);
+          if (!task) {
+            throw new McpError(ErrorCode.InvalidParams, `Task not found: ${taskId}`);
+          }
+          if (!isTerminal(task.status)) {
+            await this._waitForTaskUpdate(taskId, extra.signal);
+            return await handleTaskResult();
+          }
+          if (isTerminal(task.status)) {
+            const result = await this._taskStore.getTaskResult(taskId, extra.sessionId);
+            this._clearTaskQueue(taskId);
+            return {
+              ...result,
+              _meta: {
+                ...result._meta,
+                [RELATED_TASK_META_KEY]: {
+                  taskId
+                }
+              }
+            };
+          }
+          return await handleTaskResult();
+        };
+        return await handleTaskResult();
+      });
+      this.setRequestHandler(ListTasksRequestSchema, async (request, extra) => {
+        try {
+          const { tasks, nextCursor } = await this._taskStore.listTasks(request.params?.cursor, extra.sessionId);
+          return {
+            tasks,
+            nextCursor,
+            _meta: {}
+          };
+        } catch (error2) {
+          throw new McpError(ErrorCode.InvalidParams, `Failed to list tasks: ${error2 instanceof Error ? error2.message : String(error2)}`);
+        }
+      });
+      this.setRequestHandler(CancelTaskRequestSchema, async (request, extra) => {
+        try {
+          const task = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
+          if (!task) {
+            throw new McpError(ErrorCode.InvalidParams, `Task not found: ${request.params.taskId}`);
+          }
+          if (isTerminal(task.status)) {
+            throw new McpError(ErrorCode.InvalidParams, `Cannot cancel task in terminal status: ${task.status}`);
+          }
+          await this._taskStore.updateTaskStatus(request.params.taskId, "cancelled", "Client cancelled task execution.", extra.sessionId);
+          this._clearTaskQueue(request.params.taskId);
+          const cancelledTask = await this._taskStore.getTask(request.params.taskId, extra.sessionId);
+          if (!cancelledTask) {
+            throw new McpError(ErrorCode.InvalidParams, `Task not found after cancellation: ${request.params.taskId}`);
+          }
+          return {
+            _meta: {},
+            ...cancelledTask
+          };
+        } catch (error2) {
+          if (error2 instanceof McpError) {
+            throw error2;
+          }
+          throw new McpError(ErrorCode.InvalidRequest, `Failed to cancel task: ${error2 instanceof Error ? error2.message : String(error2)}`);
+        }
+      });
+    }
+  }
+  async _oncancel(notification) {
+    if (!notification.params.requestId) {
+      return;
+    }
+    const controller = this._requestHandlerAbortControllers.get(notification.params.requestId);
+    controller?.abort(notification.params.reason);
+  }
+  _setupTimeout(messageId, timeout, maxTotalTimeout, onTimeout, resetTimeoutOnProgress = false) {
+    this._timeoutInfo.set(messageId, {
+      timeoutId: setTimeout(onTimeout, timeout),
+      startTime: Date.now(),
+      timeout,
+      maxTotalTimeout,
+      resetTimeoutOnProgress,
+      onTimeout
+    });
+  }
+  _resetTimeout(messageId) {
+    const info = this._timeoutInfo.get(messageId);
+    if (!info)
+      return false;
+    const totalElapsed = Date.now() - info.startTime;
+    if (info.maxTotalTimeout && totalElapsed >= info.maxTotalTimeout) {
+      this._timeoutInfo.delete(messageId);
+      throw McpError.fromError(ErrorCode.RequestTimeout, "Maximum total timeout exceeded", {
+        maxTotalTimeout: info.maxTotalTimeout,
+        totalElapsed
+      });
+    }
+    clearTimeout(info.timeoutId);
+    info.timeoutId = setTimeout(info.onTimeout, info.timeout);
+    return true;
+  }
+  _cleanupTimeout(messageId) {
+    const info = this._timeoutInfo.get(messageId);
+    if (info) {
+      clearTimeout(info.timeoutId);
+      this._timeoutInfo.delete(messageId);
+    }
+  }
+  async connect(transport) {
+    if (this._transport) {
+      throw new Error("Already connected to a transport. Call close() before connecting to a new transport, or use a separate Protocol instance per connection.");
+    }
+    this._transport = transport;
+    const _onclose = this.transport?.onclose;
+    this._transport.onclose = () => {
+      _onclose?.();
+      this._onclose();
+    };
+    const _onerror = this.transport?.onerror;
+    this._transport.onerror = (error2) => {
+      _onerror?.(error2);
+      this._onerror(error2);
+    };
+    const _onmessage = this._transport?.onmessage;
+    this._transport.onmessage = (message, extra) => {
+      _onmessage?.(message, extra);
+      if (isJSONRPCResultResponse(message) || isJSONRPCErrorResponse(message)) {
+        this._onresponse(message);
+      } else if (isJSONRPCRequest(message)) {
+        this._onrequest(message, extra);
+      } else if (isJSONRPCNotification(message)) {
+        this._onnotification(message);
+      } else {
+        this._onerror(new Error(`Unknown message type: ${JSON.stringify(message)}`));
+      }
+    };
+    await this._transport.start();
+  }
+  _onclose() {
+    const responseHandlers = this._responseHandlers;
+    this._responseHandlers = new Map;
+    this._progressHandlers.clear();
+    this._taskProgressTokens.clear();
+    this._pendingDebouncedNotifications.clear();
+    for (const info of this._timeoutInfo.values()) {
+      clearTimeout(info.timeoutId);
+    }
+    this._timeoutInfo.clear();
+    for (const controller of this._requestHandlerAbortControllers.values()) {
+      controller.abort();
+    }
+    this._requestHandlerAbortControllers.clear();
+    const error2 = McpError.fromError(ErrorCode.ConnectionClosed, "Connection closed");
+    this._transport = undefined;
+    this.onclose?.();
+    for (const handler of responseHandlers.values()) {
+      handler(error2);
+    }
+  }
+  _onerror(error2) {
+    this.onerror?.(error2);
+  }
+  _onnotification(notification) {
+    const handler = this._notificationHandlers.get(notification.method) ?? this.fallbackNotificationHandler;
+    if (handler === undefined) {
+      return;
+    }
+    Promise.resolve().then(() => handler(notification)).catch((error2) => this._onerror(new Error(`Uncaught error in notification handler: ${error2}`)));
+  }
+  _onrequest(request, extra) {
+    const handler = this._requestHandlers.get(request.method) ?? this.fallbackRequestHandler;
+    const capturedTransport = this._transport;
+    const relatedTaskId = request.params?._meta?.[RELATED_TASK_META_KEY]?.taskId;
+    if (handler === undefined) {
+      const errorResponse = {
+        jsonrpc: "2.0",
+        id: request.id,
+        error: {
+          code: ErrorCode.MethodNotFound,
+          message: "Method not found"
+        }
+      };
+      if (relatedTaskId && this._taskMessageQueue) {
+        this._enqueueTaskMessage(relatedTaskId, {
+          type: "error",
+          message: errorResponse,
+          timestamp: Date.now()
+        }, capturedTransport?.sessionId).catch((error2) => this._onerror(new Error(`Failed to enqueue error response: ${error2}`)));
+      } else {
+        capturedTransport?.send(errorResponse).catch((error2) => this._onerror(new Error(`Failed to send an error response: ${error2}`)));
+      }
+      return;
+    }
+    const abortController = new AbortController;
+    this._requestHandlerAbortControllers.set(request.id, abortController);
+    const taskCreationParams = isTaskAugmentedRequestParams(request.params) ? request.params.task : undefined;
+    const taskStore = this._taskStore ? this.requestTaskStore(request, capturedTransport?.sessionId) : undefined;
+    const fullExtra = {
+      signal: abortController.signal,
+      sessionId: capturedTransport?.sessionId,
+      _meta: request.params?._meta,
+      sendNotification: async (notification) => {
+        if (abortController.signal.aborted)
+          return;
+        const notificationOptions = { relatedRequestId: request.id };
+        if (relatedTaskId) {
+          notificationOptions.relatedTask = { taskId: relatedTaskId };
+        }
+        await this.notification(notification, notificationOptions);
+      },
+      sendRequest: async (r, resultSchema, options) => {
+        if (abortController.signal.aborted) {
+          throw new McpError(ErrorCode.ConnectionClosed, "Request was cancelled");
+        }
+        const requestOptions = { ...options, relatedRequestId: request.id };
+        if (relatedTaskId && !requestOptions.relatedTask) {
+          requestOptions.relatedTask = { taskId: relatedTaskId };
+        }
+        const effectiveTaskId = requestOptions.relatedTask?.taskId ?? relatedTaskId;
+        if (effectiveTaskId && taskStore) {
+          await taskStore.updateTaskStatus(effectiveTaskId, "input_required");
+        }
+        return await this.request(r, resultSchema, requestOptions);
+      },
+      authInfo: extra?.authInfo,
+      requestId: request.id,
+      requestInfo: extra?.requestInfo,
+      taskId: relatedTaskId,
+      taskStore,
+      taskRequestedTtl: taskCreationParams?.ttl,
+      closeSSEStream: extra?.closeSSEStream,
+      closeStandaloneSSEStream: extra?.closeStandaloneSSEStream
+    };
+    Promise.resolve().then(() => {
+      if (taskCreationParams) {
+        this.assertTaskHandlerCapability(request.method);
+      }
+    }).then(() => handler(request, fullExtra)).then(async (result) => {
+      if (abortController.signal.aborted) {
+        return;
+      }
+      const response = {
+        result,
+        jsonrpc: "2.0",
+        id: request.id
+      };
+      if (relatedTaskId && this._taskMessageQueue) {
+        await this._enqueueTaskMessage(relatedTaskId, {
+          type: "response",
+          message: response,
+          timestamp: Date.now()
+        }, capturedTransport?.sessionId);
+      } else {
+        await capturedTransport?.send(response);
+      }
+    }, async (error2) => {
+      if (abortController.signal.aborted) {
+        return;
+      }
+      const errorResponse = {
+        jsonrpc: "2.0",
+        id: request.id,
+        error: {
+          code: Number.isSafeInteger(error2["code"]) ? error2["code"] : ErrorCode.InternalError,
+          message: error2.message ?? "Internal error",
+          ...error2["data"] !== undefined && { data: error2["data"] }
+        }
+      };
+      if (relatedTaskId && this._taskMessageQueue) {
+        await this._enqueueTaskMessage(relatedTaskId, {
+          type: "error",
+          message: errorResponse,
+          timestamp: Date.now()
+        }, capturedTransport?.sessionId);
+      } else {
+        await capturedTransport?.send(errorResponse);
+      }
+    }).catch((error2) => this._onerror(new Error(`Failed to send response: ${error2}`))).finally(() => {
+      if (this._requestHandlerAbortControllers.get(request.id) === abortController) {
+        this._requestHandlerAbortControllers.delete(request.id);
+      }
+    });
+  }
+  _onprogress(notification) {
+    const { progressToken, ...params } = notification.params;
+    const messageId = Number(progressToken);
+    const handler = this._progressHandlers.get(messageId);
+    if (!handler) {
+      this._onerror(new Error(`Received a progress notification for an unknown token: ${JSON.stringify(notification)}`));
+      return;
+    }
+    const responseHandler = this._responseHandlers.get(messageId);
+    const timeoutInfo = this._timeoutInfo.get(messageId);
+    if (timeoutInfo && responseHandler && timeoutInfo.resetTimeoutOnProgress) {
+      try {
+        this._resetTimeout(messageId);
+      } catch (error2) {
+        this._responseHandlers.delete(messageId);
+        this._progressHandlers.delete(messageId);
+        this._cleanupTimeout(messageId);
+        responseHandler(error2);
+        return;
+      }
+    }
+    handler(params);
+  }
+  _onresponse(response) {
+    const messageId = Number(response.id);
+    const resolver = this._requestResolvers.get(messageId);
+    if (resolver) {
+      this._requestResolvers.delete(messageId);
+      if (isJSONRPCResultResponse(response)) {
+        resolver(response);
+      } else {
+        const error2 = new McpError(response.error.code, response.error.message, response.error.data);
+        resolver(error2);
+      }
+      return;
+    }
+    const handler = this._responseHandlers.get(messageId);
+    if (handler === undefined) {
+      this._onerror(new Error(`Received a response for an unknown message ID: ${JSON.stringify(response)}`));
+      return;
+    }
+    this._responseHandlers.delete(messageId);
+    this._cleanupTimeout(messageId);
+    let isTaskResponse = false;
+    if (isJSONRPCResultResponse(response) && response.result && typeof response.result === "object") {
+      const result = response.result;
+      if (result.task && typeof result.task === "object") {
+        const task = result.task;
+        if (typeof task.taskId === "string") {
+          isTaskResponse = true;
+          this._taskProgressTokens.set(task.taskId, messageId);
+        }
+      }
+    }
+    if (!isTaskResponse) {
+      this._progressHandlers.delete(messageId);
+    }
+    if (isJSONRPCResultResponse(response)) {
+      handler(response);
+    } else {
+      const error2 = McpError.fromError(response.error.code, response.error.message, response.error.data);
+      handler(error2);
+    }
+  }
+  get transport() {
+    return this._transport;
+  }
+  async close() {
+    await this._transport?.close();
+  }
+  async* requestStream(request, resultSchema, options) {
+    const { task } = options ?? {};
+    if (!task) {
+      try {
+        const result = await this.request(request, resultSchema, options);
+        yield { type: "result", result };
+      } catch (error2) {
+        yield {
+          type: "error",
+          error: error2 instanceof McpError ? error2 : new McpError(ErrorCode.InternalError, String(error2))
+        };
+      }
+      return;
+    }
+    let taskId;
+    try {
+      const createResult = await this.request(request, CreateTaskResultSchema, options);
+      if (createResult.task) {
+        taskId = createResult.task.taskId;
+        yield { type: "taskCreated", task: createResult.task };
+      } else {
+        throw new McpError(ErrorCode.InternalError, "Task creation did not return a task");
+      }
+      while (true) {
+        const task2 = await this.getTask({ taskId }, options);
+        yield { type: "taskStatus", task: task2 };
+        if (isTerminal(task2.status)) {
+          if (task2.status === "completed") {
+            const result = await this.getTaskResult({ taskId }, resultSchema, options);
+            yield { type: "result", result };
+          } else if (task2.status === "failed") {
+            yield {
+              type: "error",
+              error: new McpError(ErrorCode.InternalError, `Task ${taskId} failed`)
+            };
+          } else if (task2.status === "cancelled") {
+            yield {
+              type: "error",
+              error: new McpError(ErrorCode.InternalError, `Task ${taskId} was cancelled`)
+            };
+          }
+          return;
+        }
+        if (task2.status === "input_required") {
+          const result = await this.getTaskResult({ taskId }, resultSchema, options);
+          yield { type: "result", result };
+          return;
+        }
+        const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1000;
+        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        options?.signal?.throwIfAborted();
+      }
+    } catch (error2) {
+      yield {
+        type: "error",
+        error: error2 instanceof McpError ? error2 : new McpError(ErrorCode.InternalError, String(error2))
+      };
+    }
+  }
+  request(request, resultSchema, options) {
+    const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
+    return new Promise((resolve, reject) => {
+      const earlyReject = (error2) => {
+        reject(error2);
+      };
+      if (!this._transport) {
+        earlyReject(new Error("Not connected"));
+        return;
+      }
+      if (this._options?.enforceStrictCapabilities === true) {
+        try {
+          this.assertCapabilityForMethod(request.method);
+          if (task) {
+            this.assertTaskCapability(request.method);
+          }
+        } catch (e) {
+          earlyReject(e);
+          return;
+        }
+      }
+      options?.signal?.throwIfAborted();
+      const messageId = this._requestMessageId++;
+      const jsonrpcRequest = {
+        ...request,
+        jsonrpc: "2.0",
+        id: messageId
+      };
+      if (options?.onprogress) {
+        this._progressHandlers.set(messageId, options.onprogress);
+        jsonrpcRequest.params = {
+          ...request.params,
+          _meta: {
+            ...request.params?._meta || {},
+            progressToken: messageId
+          }
+        };
+      }
+      if (task) {
+        jsonrpcRequest.params = {
+          ...jsonrpcRequest.params,
+          task
+        };
+      }
+      if (relatedTask) {
+        jsonrpcRequest.params = {
+          ...jsonrpcRequest.params,
+          _meta: {
+            ...jsonrpcRequest.params?._meta || {},
+            [RELATED_TASK_META_KEY]: relatedTask
+          }
+        };
+      }
+      const cancel = (reason) => {
+        this._responseHandlers.delete(messageId);
+        this._progressHandlers.delete(messageId);
+        this._cleanupTimeout(messageId);
+        this._transport?.send({
+          jsonrpc: "2.0",
+          method: "notifications/cancelled",
+          params: {
+            requestId: messageId,
+            reason: String(reason)
+          }
+        }, { relatedRequestId, resumptionToken, onresumptiontoken }).catch((error3) => this._onerror(new Error(`Failed to send cancellation: ${error3}`)));
+        const error2 = reason instanceof McpError ? reason : new McpError(ErrorCode.RequestTimeout, String(reason));
+        reject(error2);
+      };
+      this._responseHandlers.set(messageId, (response) => {
+        if (options?.signal?.aborted) {
+          return;
+        }
+        if (response instanceof Error) {
+          return reject(response);
+        }
+        try {
+          const parseResult = safeParse3(resultSchema, response.result);
+          if (!parseResult.success) {
+            reject(parseResult.error);
+          } else {
+            resolve(parseResult.data);
+          }
+        } catch (error2) {
+          reject(error2);
+        }
+      });
+      options?.signal?.addEventListener("abort", () => {
+        cancel(options?.signal?.reason);
+      });
+      const timeout = options?.timeout ?? DEFAULT_REQUEST_TIMEOUT_MSEC;
+      const timeoutHandler = () => cancel(McpError.fromError(ErrorCode.RequestTimeout, "Request timed out", { timeout }));
+      this._setupTimeout(messageId, timeout, options?.maxTotalTimeout, timeoutHandler, options?.resetTimeoutOnProgress ?? false);
+      const relatedTaskId = relatedTask?.taskId;
+      if (relatedTaskId) {
+        const responseResolver = (response) => {
+          const handler = this._responseHandlers.get(messageId);
+          if (handler) {
+            handler(response);
+          } else {
+            this._onerror(new Error(`Response handler missing for side-channeled request ${messageId}`));
+          }
+        };
+        this._requestResolvers.set(messageId, responseResolver);
+        this._enqueueTaskMessage(relatedTaskId, {
+          type: "request",
+          message: jsonrpcRequest,
+          timestamp: Date.now()
+        }).catch((error2) => {
+          this._cleanupTimeout(messageId);
+          reject(error2);
+        });
+      } else {
+        this._transport.send(jsonrpcRequest, { relatedRequestId, resumptionToken, onresumptiontoken }).catch((error2) => {
+          this._cleanupTimeout(messageId);
+          reject(error2);
+        });
+      }
+    });
+  }
+  async getTask(params, options) {
+    return this.request({ method: "tasks/get", params }, GetTaskResultSchema, options);
+  }
+  async getTaskResult(params, resultSchema, options) {
+    return this.request({ method: "tasks/result", params }, resultSchema, options);
+  }
+  async listTasks(params, options) {
+    return this.request({ method: "tasks/list", params }, ListTasksResultSchema, options);
+  }
+  async cancelTask(params, options) {
+    return this.request({ method: "tasks/cancel", params }, CancelTaskResultSchema, options);
+  }
+  async notification(notification, options) {
+    if (!this._transport) {
+      throw new Error("Not connected");
+    }
+    this.assertNotificationCapability(notification.method);
+    const relatedTaskId = options?.relatedTask?.taskId;
+    if (relatedTaskId) {
+      const jsonrpcNotification2 = {
+        ...notification,
+        jsonrpc: "2.0",
+        params: {
+          ...notification.params,
+          _meta: {
+            ...notification.params?._meta || {},
+            [RELATED_TASK_META_KEY]: options.relatedTask
+          }
+        }
+      };
+      await this._enqueueTaskMessage(relatedTaskId, {
+        type: "notification",
+        message: jsonrpcNotification2,
+        timestamp: Date.now()
+      });
+      return;
+    }
+    const debouncedMethods = this._options?.debouncedNotificationMethods ?? [];
+    const canDebounce = debouncedMethods.includes(notification.method) && !notification.params && !options?.relatedRequestId && !options?.relatedTask;
+    if (canDebounce) {
+      if (this._pendingDebouncedNotifications.has(notification.method)) {
+        return;
+      }
+      this._pendingDebouncedNotifications.add(notification.method);
+      Promise.resolve().then(() => {
+        this._pendingDebouncedNotifications.delete(notification.method);
+        if (!this._transport) {
+          return;
+        }
+        let jsonrpcNotification2 = {
+          ...notification,
+          jsonrpc: "2.0"
+        };
+        if (options?.relatedTask) {
+          jsonrpcNotification2 = {
+            ...jsonrpcNotification2,
+            params: {
+              ...jsonrpcNotification2.params,
+              _meta: {
+                ...jsonrpcNotification2.params?._meta || {},
+                [RELATED_TASK_META_KEY]: options.relatedTask
+              }
+            }
+          };
+        }
+        this._transport?.send(jsonrpcNotification2, options).catch((error2) => this._onerror(error2));
+      });
+      return;
+    }
+    let jsonrpcNotification = {
+      ...notification,
+      jsonrpc: "2.0"
+    };
+    if (options?.relatedTask) {
+      jsonrpcNotification = {
+        ...jsonrpcNotification,
+        params: {
+          ...jsonrpcNotification.params,
+          _meta: {
+            ...jsonrpcNotification.params?._meta || {},
+            [RELATED_TASK_META_KEY]: options.relatedTask
+          }
+        }
+      };
+    }
+    await this._transport.send(jsonrpcNotification, options);
+  }
+  setRequestHandler(requestSchema, handler) {
+    const method = getMethodLiteral(requestSchema);
+    this.assertRequestHandlerCapability(method);
+    this._requestHandlers.set(method, (request, extra) => {
+      const parsed = parseWithCompat(requestSchema, request);
+      return Promise.resolve(handler(parsed, extra));
+    });
+  }
+  removeRequestHandler(method) {
+    this._requestHandlers.delete(method);
+  }
+  assertCanSetRequestHandler(method) {
+    if (this._requestHandlers.has(method)) {
+      throw new Error(`A request handler for ${method} already exists, which would be overridden`);
+    }
+  }
+  setNotificationHandler(notificationSchema, handler) {
+    const method = getMethodLiteral(notificationSchema);
+    this._notificationHandlers.set(method, (notification) => {
+      const parsed = parseWithCompat(notificationSchema, notification);
+      return Promise.resolve(handler(parsed));
+    });
+  }
+  removeNotificationHandler(method) {
+    this._notificationHandlers.delete(method);
+  }
+  _cleanupTaskProgressHandler(taskId) {
+    const progressToken = this._taskProgressTokens.get(taskId);
+    if (progressToken !== undefined) {
+      this._progressHandlers.delete(progressToken);
+      this._taskProgressTokens.delete(taskId);
+    }
+  }
+  async _enqueueTaskMessage(taskId, message, sessionId) {
+    if (!this._taskStore || !this._taskMessageQueue) {
+      throw new Error("Cannot enqueue task message: taskStore and taskMessageQueue are not configured");
+    }
+    const maxQueueSize = this._options?.maxTaskQueueSize;
+    await this._taskMessageQueue.enqueue(taskId, message, sessionId, maxQueueSize);
+  }
+  async _clearTaskQueue(taskId, sessionId) {
+    if (this._taskMessageQueue) {
+      const messages = await this._taskMessageQueue.dequeueAll(taskId, sessionId);
+      for (const message of messages) {
+        if (message.type === "request" && isJSONRPCRequest(message.message)) {
+          const requestId = message.message.id;
+          const resolver = this._requestResolvers.get(requestId);
+          if (resolver) {
+            resolver(new McpError(ErrorCode.InternalError, "Task cancelled or completed"));
+            this._requestResolvers.delete(requestId);
+          } else {
+            this._onerror(new Error(`Resolver missing for request ${requestId} during task ${taskId} cleanup`));
+          }
+        }
+      }
+    }
+  }
+  async _waitForTaskUpdate(taskId, signal) {
+    let interval = this._options?.defaultTaskPollInterval ?? 1000;
+    try {
+      const task = await this._taskStore?.getTask(taskId);
+      if (task?.pollInterval) {
+        interval = task.pollInterval;
+      }
+    } catch {}
+    return new Promise((resolve, reject) => {
+      if (signal.aborted) {
+        reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
+        return;
+      }
+      const timeoutId = setTimeout(resolve, interval);
+      signal.addEventListener("abort", () => {
+        clearTimeout(timeoutId);
+        reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
+      }, { once: true });
+    });
+  }
+  requestTaskStore(request, sessionId) {
+    const taskStore = this._taskStore;
+    if (!taskStore) {
+      throw new Error("No task store configured");
+    }
+    return {
+      createTask: async (taskParams) => {
+        if (!request) {
+          throw new Error("No request provided");
+        }
+        return await taskStore.createTask(taskParams, request.id, {
+          method: request.method,
+          params: request.params
+        }, sessionId);
+      },
+      getTask: async (taskId) => {
+        const task = await taskStore.getTask(taskId, sessionId);
+        if (!task) {
+          throw new McpError(ErrorCode.InvalidParams, "Failed to retrieve task: Task not found");
+        }
+        return task;
+      },
+      storeTaskResult: async (taskId, status, result) => {
+        await taskStore.storeTaskResult(taskId, status, result, sessionId);
+        const task = await taskStore.getTask(taskId, sessionId);
+        if (task) {
+          const notification = TaskStatusNotificationSchema.parse({
+            method: "notifications/tasks/status",
+            params: task
+          });
+          await this.notification(notification);
+          if (isTerminal(task.status)) {
+            this._cleanupTaskProgressHandler(taskId);
+          }
+        }
+      },
+      getTaskResult: (taskId) => {
+        return taskStore.getTaskResult(taskId, sessionId);
+      },
+      updateTaskStatus: async (taskId, status, statusMessage) => {
+        const task = await taskStore.getTask(taskId, sessionId);
+        if (!task) {
+          throw new McpError(ErrorCode.InvalidParams, `Task "${taskId}" not found - it may have been cleaned up`);
+        }
+        if (isTerminal(task.status)) {
+          throw new McpError(ErrorCode.InvalidParams, `Cannot update task "${taskId}" from terminal status "${task.status}" to "${status}". Terminal states (completed, failed, cancelled) cannot transition to other states.`);
+        }
+        await taskStore.updateTaskStatus(taskId, status, statusMessage, sessionId);
+        const updatedTask = await taskStore.getTask(taskId, sessionId);
+        if (updatedTask) {
+          const notification = TaskStatusNotificationSchema.parse({
+            method: "notifications/tasks/status",
+            params: updatedTask
+          });
+          await this.notification(notification);
+          if (isTerminal(updatedTask.status)) {
+            this._cleanupTaskProgressHandler(taskId);
+          }
+        }
+      },
+      listTasks: (cursor) => {
+        return taskStore.listTasks(cursor, sessionId);
+      }
+    };
+  }
+}
+function isPlainObject2(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+function mergeCapabilities(base, additional) {
+  const result = { ...base };
+  for (const key in additional) {
+    const k = key;
+    const addValue = additional[k];
+    if (addValue === undefined)
+      continue;
+    const baseValue = result[k];
+    if (isPlainObject2(baseValue) && isPlainObject2(addValue)) {
+      result[k] = { ...baseValue, ...addValue };
+    } else {
+      result[k] = addValue;
+    }
+  }
+  return result;
+}
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+var import_ajv = __toESM(require_ajv(), 1);
+var import_ajv_formats = __toESM(require_dist(), 1);
+function createDefaultAjvInstance() {
+  const ajv = new import_ajv.default({
+    strict: false,
+    validateFormats: true,
+    validateSchema: false,
+    allErrors: true
+  });
+  const addFormats = import_ajv_formats.default;
+  addFormats(ajv);
+  return ajv;
+}
+
+class AjvJsonSchemaValidator {
+  constructor(ajv) {
+    this._ajv = ajv ?? createDefaultAjvInstance();
+  }
+  getValidator(schema) {
+    const ajvValidator = "$id" in schema && typeof schema.$id === "string" ? this._ajv.getSchema(schema.$id) ?? this._ajv.compile(schema) : this._ajv.compile(schema);
+    return (input) => {
+      const valid = ajvValidator(input);
+      if (valid) {
+        return {
+          valid: true,
+          data: input,
+          errorMessage: undefined
+        };
+      } else {
+        return {
+          valid: false,
+          data: undefined,
+          errorMessage: this._ajv.errorsText(ajvValidator.errors)
+        };
+      }
+    };
+  }
+}
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+class ExperimentalServerTasks {
+  constructor(_server) {
+    this._server = _server;
+  }
+  requestStream(request, resultSchema, options) {
+    return this._server.requestStream(request, resultSchema, options);
+  }
+  createMessageStream(params, options) {
+    const clientCapabilities = this._server.getClientCapabilities();
+    if ((params.tools || params.toolChoice) && !clientCapabilities?.sampling?.tools) {
+      throw new Error("Client does not support sampling tools capability.");
+    }
+    if (params.messages.length > 0) {
+      const lastMessage = params.messages[params.messages.length - 1];
+      const lastContent = Array.isArray(lastMessage.content) ? lastMessage.content : [lastMessage.content];
+      const hasToolResults = lastContent.some((c) => c.type === "tool_result");
+      const previousMessage = params.messages.length > 1 ? params.messages[params.messages.length - 2] : undefined;
+      const previousContent = previousMessage ? Array.isArray(previousMessage.content) ? previousMessage.content : [previousMessage.content] : [];
+      const hasPreviousToolUse = previousContent.some((c) => c.type === "tool_use");
+      if (hasToolResults) {
+        if (lastContent.some((c) => c.type !== "tool_result")) {
+          throw new Error("The last message must contain only tool_result content if any is present");
+        }
+        if (!hasPreviousToolUse) {
+          throw new Error("tool_result blocks are not matching any tool_use from the previous message");
+        }
+      }
+      if (hasPreviousToolUse) {
+        const toolUseIds = new Set(previousContent.filter((c) => c.type === "tool_use").map((c) => c.id));
+        const toolResultIds = new Set(lastContent.filter((c) => c.type === "tool_result").map((c) => c.toolUseId));
+        if (toolUseIds.size !== toolResultIds.size || ![...toolUseIds].every((id) => toolResultIds.has(id))) {
+          throw new Error("ids of tool_result blocks and tool_use blocks from previous message do not match");
+        }
+      }
+    }
+    return this.requestStream({
+      method: "sampling/createMessage",
+      params
+    }, CreateMessageResultSchema, options);
+  }
+  elicitInputStream(params, options) {
+    const clientCapabilities = this._server.getClientCapabilities();
+    const mode = params.mode ?? "form";
+    switch (mode) {
+      case "url": {
+        if (!clientCapabilities?.elicitation?.url) {
+          throw new Error("Client does not support url elicitation.");
+        }
+        break;
+      }
+      case "form": {
+        if (!clientCapabilities?.elicitation?.form) {
+          throw new Error("Client does not support form elicitation.");
+        }
+        break;
+      }
+    }
+    const normalizedParams = mode === "form" && params.mode === undefined ? { ...params, mode: "form" } : params;
+    return this.requestStream({
+      method: "elicitation/create",
+      params: normalizedParams
+    }, ElicitResultSchema, options);
+  }
+  async getTask(taskId, options) {
+    return this._server.getTask({ taskId }, options);
+  }
+  async getTaskResult(taskId, resultSchema, options) {
+    return this._server.getTaskResult({ taskId }, resultSchema, options);
+  }
+  async listTasks(cursor, options) {
+    return this._server.listTasks(cursor ? { cursor } : undefined, options);
+  }
+  async cancelTask(taskId, options) {
+    return this._server.cancelTask({ taskId }, options);
+  }
+}
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+function assertToolsCallTaskCapability(requests, method, entityName) {
+  if (!requests) {
+    throw new Error(`${entityName} does not support task creation (required for ${method})`);
+  }
+  switch (method) {
+    case "tools/call":
+      if (!requests.tools?.call) {
+        throw new Error(`${entityName} does not support task creation for tools/call (required for ${method})`);
+      }
+      break;
+    default:
+      break;
+  }
+}
+function assertClientRequestTaskCapability(requests, method, entityName) {
+  if (!requests) {
+    throw new Error(`${entityName} does not support task creation (required for ${method})`);
+  }
+  switch (method) {
+    case "sampling/createMessage":
+      if (!requests.sampling?.createMessage) {
+        throw new Error(`${entityName} does not support task creation for sampling/createMessage (required for ${method})`);
+      }
+      break;
+    case "elicitation/create":
+      if (!requests.elicitation?.create) {
+        throw new Error(`${entityName} does not support task creation for elicitation/create (required for ${method})`);
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+class Server extends Protocol {
+  constructor(_serverInfo, options) {
+    super(options);
+    this._serverInfo = _serverInfo;
+    this._loggingLevels = new Map;
+    this.LOG_LEVEL_SEVERITY = new Map(LoggingLevelSchema.options.map((level, index) => [level, index]));
+    this.isMessageIgnored = (level, sessionId) => {
+      const currentLevel = this._loggingLevels.get(sessionId);
+      return currentLevel ? this.LOG_LEVEL_SEVERITY.get(level) < this.LOG_LEVEL_SEVERITY.get(currentLevel) : false;
+    };
+    this._capabilities = options?.capabilities ?? {};
+    this._instructions = options?.instructions;
+    this._jsonSchemaValidator = options?.jsonSchemaValidator ?? new AjvJsonSchemaValidator;
+    this.setRequestHandler(InitializeRequestSchema, (request) => this._oninitialize(request));
+    this.setNotificationHandler(InitializedNotificationSchema, () => this.oninitialized?.());
+    if (this._capabilities.logging) {
+      this.setRequestHandler(SetLevelRequestSchema, async (request, extra) => {
+        const transportSessionId = extra.sessionId || extra.requestInfo?.headers["mcp-session-id"] || undefined;
+        const { level } = request.params;
+        const parseResult = LoggingLevelSchema.safeParse(level);
+        if (parseResult.success) {
+          this._loggingLevels.set(transportSessionId, parseResult.data);
+        }
+        return {};
+      });
+    }
+  }
+  get experimental() {
+    if (!this._experimental) {
+      this._experimental = {
+        tasks: new ExperimentalServerTasks(this)
+      };
+    }
+    return this._experimental;
+  }
+  registerCapabilities(capabilities) {
+    if (this.transport) {
+      throw new Error("Cannot register capabilities after connecting to transport");
+    }
+    this._capabilities = mergeCapabilities(this._capabilities, capabilities);
+  }
+  setRequestHandler(requestSchema, handler) {
+    const shape = getObjectShape(requestSchema);
+    const methodSchema = shape?.method;
+    if (!methodSchema) {
+      throw new Error("Schema is missing a method literal");
+    }
+    let methodValue;
+    if (isZ4Schema(methodSchema)) {
+      const v4Schema = methodSchema;
+      const v4Def = v4Schema._zod?.def;
+      methodValue = v4Def?.value ?? v4Schema.value;
+    } else {
+      const v3Schema = methodSchema;
+      const legacyDef = v3Schema._def;
+      methodValue = legacyDef?.value ?? v3Schema.value;
+    }
+    if (typeof methodValue !== "string") {
+      throw new Error("Schema method literal must be a string");
+    }
+    const method = methodValue;
+    if (method === "tools/call") {
+      const wrappedHandler = async (request, extra) => {
+        const validatedRequest = safeParse3(CallToolRequestSchema, request);
+        if (!validatedRequest.success) {
+          const errorMessage = validatedRequest.error instanceof Error ? validatedRequest.error.message : String(validatedRequest.error);
+          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call request: ${errorMessage}`);
+        }
+        const { params } = validatedRequest.data;
+        const result = await Promise.resolve(handler(request, extra));
+        if (params.task) {
+          const taskValidationResult = safeParse3(CreateTaskResultSchema, result);
+          if (!taskValidationResult.success) {
+            const errorMessage = taskValidationResult.error instanceof Error ? taskValidationResult.error.message : String(taskValidationResult.error);
+            throw new McpError(ErrorCode.InvalidParams, `Invalid task creation result: ${errorMessage}`);
+          }
+          return taskValidationResult.data;
+        }
+        const validationResult = safeParse3(CallToolResultSchema, result);
+        if (!validationResult.success) {
+          const errorMessage = validationResult.error instanceof Error ? validationResult.error.message : String(validationResult.error);
+          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call result: ${errorMessage}`);
+        }
+        return validationResult.data;
+      };
+      return super.setRequestHandler(requestSchema, wrappedHandler);
+    }
+    return super.setRequestHandler(requestSchema, handler);
+  }
+  assertCapabilityForMethod(method) {
+    switch (method) {
+      case "sampling/createMessage":
+        if (!this._clientCapabilities?.sampling) {
+          throw new Error(`Client does not support sampling (required for ${method})`);
+        }
+        break;
+      case "elicitation/create":
+        if (!this._clientCapabilities?.elicitation) {
+          throw new Error(`Client does not support elicitation (required for ${method})`);
+        }
+        break;
+      case "roots/list":
+        if (!this._clientCapabilities?.roots) {
+          throw new Error(`Client does not support listing roots (required for ${method})`);
+        }
+        break;
+      case "ping":
+        break;
+    }
+  }
+  assertNotificationCapability(method) {
+    switch (method) {
+      case "notifications/message":
+        if (!this._capabilities.logging) {
+          throw new Error(`Server does not support logging (required for ${method})`);
+        }
+        break;
+      case "notifications/resources/updated":
+      case "notifications/resources/list_changed":
+        if (!this._capabilities.resources) {
+          throw new Error(`Server does not support notifying about resources (required for ${method})`);
+        }
+        break;
+      case "notifications/tools/list_changed":
+        if (!this._capabilities.tools) {
+          throw new Error(`Server does not support notifying of tool list changes (required for ${method})`);
+        }
+        break;
+      case "notifications/prompts/list_changed":
+        if (!this._capabilities.prompts) {
+          throw new Error(`Server does not support notifying of prompt list changes (required for ${method})`);
+        }
+        break;
+      case "notifications/elicitation/complete":
+        if (!this._clientCapabilities?.elicitation?.url) {
+          throw new Error(`Client does not support URL elicitation (required for ${method})`);
+        }
+        break;
+      case "notifications/cancelled":
+        break;
+      case "notifications/progress":
+        break;
+    }
+  }
+  assertRequestHandlerCapability(method) {
+    if (!this._capabilities) {
+      return;
+    }
+    switch (method) {
+      case "completion/complete":
+        if (!this._capabilities.completions) {
+          throw new Error(`Server does not support completions (required for ${method})`);
+        }
+        break;
+      case "logging/setLevel":
+        if (!this._capabilities.logging) {
+          throw new Error(`Server does not support logging (required for ${method})`);
+        }
+        break;
+      case "prompts/get":
+      case "prompts/list":
+        if (!this._capabilities.prompts) {
+          throw new Error(`Server does not support prompts (required for ${method})`);
+        }
+        break;
+      case "resources/list":
+      case "resources/templates/list":
+      case "resources/read":
+        if (!this._capabilities.resources) {
+          throw new Error(`Server does not support resources (required for ${method})`);
+        }
+        break;
+      case "tools/call":
+      case "tools/list":
+        if (!this._capabilities.tools) {
+          throw new Error(`Server does not support tools (required for ${method})`);
+        }
+        break;
+      case "tasks/get":
+      case "tasks/list":
+      case "tasks/result":
+      case "tasks/cancel":
+        if (!this._capabilities.tasks) {
+          throw new Error(`Server does not support tasks capability (required for ${method})`);
+        }
+        break;
+      case "ping":
+      case "initialize":
+        break;
+    }
+  }
+  assertTaskCapability(method) {
+    assertClientRequestTaskCapability(this._clientCapabilities?.tasks?.requests, method, "Client");
+  }
+  assertTaskHandlerCapability(method) {
+    if (!this._capabilities) {
+      return;
+    }
+    assertToolsCallTaskCapability(this._capabilities.tasks?.requests, method, "Server");
+  }
+  async _oninitialize(request) {
+    const requestedVersion = request.params.protocolVersion;
+    this._clientCapabilities = request.params.capabilities;
+    this._clientVersion = request.params.clientInfo;
+    const protocolVersion = SUPPORTED_PROTOCOL_VERSIONS.includes(requestedVersion) ? requestedVersion : LATEST_PROTOCOL_VERSION;
+    return {
+      protocolVersion,
+      capabilities: this.getCapabilities(),
+      serverInfo: this._serverInfo,
+      ...this._instructions && { instructions: this._instructions }
+    };
+  }
+  getClientCapabilities() {
+    return this._clientCapabilities;
+  }
+  getClientVersion() {
+    return this._clientVersion;
+  }
+  getCapabilities() {
+    return this._capabilities;
+  }
+  async ping() {
+    return this.request({ method: "ping" }, EmptyResultSchema);
+  }
+  async createMessage(params, options) {
+    if (params.tools || params.toolChoice) {
+      if (!this._clientCapabilities?.sampling?.tools) {
+        throw new Error("Client does not support sampling tools capability.");
+      }
+    }
+    if (params.messages.length > 0) {
+      const lastMessage = params.messages[params.messages.length - 1];
+      const lastContent = Array.isArray(lastMessage.content) ? lastMessage.content : [lastMessage.content];
+      const hasToolResults = lastContent.some((c) => c.type === "tool_result");
+      const previousMessage = params.messages.length > 1 ? params.messages[params.messages.length - 2] : undefined;
+      const previousContent = previousMessage ? Array.isArray(previousMessage.content) ? previousMessage.content : [previousMessage.content] : [];
+      const hasPreviousToolUse = previousContent.some((c) => c.type === "tool_use");
+      if (hasToolResults) {
+        if (lastContent.some((c) => c.type !== "tool_result")) {
+          throw new Error("The last message must contain only tool_result content if any is present");
+        }
+        if (!hasPreviousToolUse) {
+          throw new Error("tool_result blocks are not matching any tool_use from the previous message");
+        }
+      }
+      if (hasPreviousToolUse) {
+        const toolUseIds = new Set(previousContent.filter((c) => c.type === "tool_use").map((c) => c.id));
+        const toolResultIds = new Set(lastContent.filter((c) => c.type === "tool_result").map((c) => c.toolUseId));
+        if (toolUseIds.size !== toolResultIds.size || ![...toolUseIds].every((id) => toolResultIds.has(id))) {
+          throw new Error("ids of tool_result blocks and tool_use blocks from previous message do not match");
+        }
+      }
+    }
+    if (params.tools) {
+      return this.request({ method: "sampling/createMessage", params }, CreateMessageResultWithToolsSchema, options);
+    }
+    return this.request({ method: "sampling/createMessage", params }, CreateMessageResultSchema, options);
+  }
+  async elicitInput(params, options) {
+    const mode = params.mode ?? "form";
+    switch (mode) {
+      case "url": {
+        if (!this._clientCapabilities?.elicitation?.url) {
+          throw new Error("Client does not support url elicitation.");
+        }
+        const urlParams = params;
+        return this.request({ method: "elicitation/create", params: urlParams }, ElicitResultSchema, options);
+      }
+      case "form": {
+        if (!this._clientCapabilities?.elicitation?.form) {
+          throw new Error("Client does not support form elicitation.");
+        }
+        const formParams = params.mode === "form" ? params : { ...params, mode: "form" };
+        const result = await this.request({ method: "elicitation/create", params: formParams }, ElicitResultSchema, options);
+        if (result.action === "accept" && result.content && formParams.requestedSchema) {
+          try {
+            const validator = this._jsonSchemaValidator.getValidator(formParams.requestedSchema);
+            const validationResult = validator(result.content);
+            if (!validationResult.valid) {
+              throw new McpError(ErrorCode.InvalidParams, `Elicitation response content does not match requested schema: ${validationResult.errorMessage}`);
+            }
+          } catch (error2) {
+            if (error2 instanceof McpError) {
+              throw error2;
+            }
+            throw new McpError(ErrorCode.InternalError, `Error validating elicitation response: ${error2 instanceof Error ? error2.message : String(error2)}`);
+          }
+        }
+        return result;
+      }
+    }
+  }
+  createElicitationCompletionNotifier(elicitationId, options) {
+    if (!this._clientCapabilities?.elicitation?.url) {
+      throw new Error("Client does not support URL elicitation (required for notifications/elicitation/complete)");
+    }
+    return () => this.notification({
+      method: "notifications/elicitation/complete",
+      params: {
+        elicitationId
+      }
+    }, options);
+  }
+  async listRoots(params, options) {
+    return this.request({ method: "roots/list", params }, ListRootsResultSchema, options);
+  }
+  async sendLoggingMessage(params, sessionId) {
+    if (this._capabilities.logging) {
+      if (!this.isMessageIgnored(params.level, sessionId)) {
+        return this.notification({ method: "notifications/message", params });
+      }
+    }
+  }
+  async sendResourceUpdated(params) {
+    return this.notification({
+      method: "notifications/resources/updated",
+      params
+    });
+  }
+  async sendResourceListChanged() {
+    return this.notification({
+      method: "notifications/resources/list_changed"
+    });
+  }
+  async sendToolListChanged() {
+    return this.notification({ method: "notifications/tools/list_changed" });
+  }
+  async sendPromptListChanged() {
+    return this.notification({ method: "notifications/prompts/list_changed" });
+  }
+}
+
+// src/toolServer.ts
+function createToolServer(info, tools, options) {
+  const server = new Server(info, options);
+  server.setRequestHandler(ListToolsRequestSchema, async () => ({
+    tools: tools.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }))
+  }));
+  server.setRequestHandler(CallToolRequestSchema, async (req) => {
+    const tool = tools.find((t) => t.name === req.params.name);
+    if (!tool)
+      throw new Error(`unknown tool: ${req.params.name}`);
+    const text = await tool.handler(req.params.arguments ?? {});
+    return { content: [{ type: "text", text }] };
+  });
+  return server;
 }
 
 // src/redact.ts
@@ -16852,17 +16878,7 @@ async function startChannel(opts) {
   const client = new RelayClient(opts);
   const pending = new Map;
   const tools = createChannelTools(client, pending, opts.maxAnswerChars);
-  const mcp = new Server({ name: "vibegroup", version: "0.0.1" }, { capabilities: { tools: {}, experimental: { "claude/channel": {} } }, instructions: CHANNEL_INSTRUCTIONS });
-  mcp.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: tools.map(({ name, description, inputSchema }) => ({ name, description, inputSchema }))
-  }));
-  mcp.setRequestHandler(CallToolRequestSchema, async (req) => {
-    const tool = tools.find((t) => t.name === req.params.name);
-    if (!tool)
-      throw new Error(`unknown tool: ${req.params.name}`);
-    const text = await tool.handler(req.params.arguments ?? {});
-    return { content: [{ type: "text", text }] };
-  });
+  const mcp = createToolServer({ name: "vibegroup", version: "0.0.1" }, tools, { capabilities: { tools: {}, experimental: { "claude/channel": {} } }, instructions: CHANNEL_INSTRUCTIONS });
   await mcp.connect(new StdioServerTransport);
   client.onQuestion((q) => {
     pending.set(q.qid, q.from);
@@ -16874,37 +16890,64 @@ async function startChannel(opts) {
   await client.connect();
 }
 
-// src/config.ts
-import { join } from "path";
-var DEFAULT_RELAY_WS = "wss://relay.vibegroup.sh/ws";
-function configPath(home) {
-  return join(home, ".claude", "vibegroup", "config.json");
+// src/roomStore.ts
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
+
+// src/roomRegistry.ts
+import { join, resolve, relative, isAbsolute } from "path";
+function registryPath(home) {
+  return join(home, ".claude", "vibegroup", "rooms.json");
 }
-function resolveConfig(env, file) {
-  const room = env.VIBEGROUP_ROOM ?? file?.room;
-  const token = env.VIBEGROUP_TOKEN ?? file?.token;
-  if (!room || !token)
-    return null;
-  return {
-    url: env.VIBEGROUP_RELAY_URL ?? file?.url ?? DEFAULT_RELAY_WS,
-    room,
-    token,
-    name: env.VIBEGROUP_NAME ?? file?.name ?? "vibegroup-agent"
-  };
+function emptyRegistry() {
+  return { rooms: {} };
+}
+function parseRegistry(raw) {
+  if (!raw)
+    return emptyRegistry();
+  try {
+    const data = JSON.parse(raw);
+    if (!data || typeof data.rooms !== "object" || data.rooms === null)
+      return emptyRegistry();
+    return { rooms: data.rooms };
+  } catch {
+    return emptyRegistry();
+  }
+}
+function within(dir, cwd) {
+  const rel = relative(resolve(dir), resolve(cwd));
+  return rel === "" || !rel.startsWith("..") && !isAbsolute(rel);
+}
+function activeRoomFor(reg, cwd) {
+  let best = null;
+  for (const [label, entry] of Object.entries(reg.rooms)) {
+    if (entry.enabled === false)
+      continue;
+    if (!within(entry.dir, cwd))
+      continue;
+    if (!best || resolve(entry.dir).length > resolve(best.entry.dir).length)
+      best = { label, entry };
+  }
+  return best;
+}
+
+// src/roomStore.ts
+function loadRegistry(home) {
+  const path = registryPath(home);
+  try {
+    return existsSync(path) ? parseRegistry(readFileSync(path, "utf8")) : parseRegistry(null);
+  } catch {
+    return parseRegistry(null);
+  }
+}
+function resolveActiveRoom(home, cwd) {
+  return activeRoomFor(loadRegistry(home), cwd);
 }
 
 // src/channelServer.ts
-function readConfigFile() {
-  const path = configPath(homedir());
-  try {
-    if (existsSync(path))
-      return JSON.parse(readFileSync(path, "utf8"));
-  } catch {}
-  return null;
-}
-var config2 = resolveConfig(process.env, readConfigFile());
-if (!config2) {
-  console.error("vibegroup: not configured yet. Run /vibegroup:allow-channel to set up and join a room.");
+var active = resolveActiveRoom(homedir(), process.cwd());
+if (!active) {
+  console.error("vibegroup: no room active in this directory. Add one with `vibegroup add` here.");
   process.exit(0);
 }
-await startChannel(config2);
+var { url, room, token, name } = active.entry;
+await startChannel({ url, room, token, name });

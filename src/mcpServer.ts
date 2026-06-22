@@ -1,18 +1,22 @@
+import { homedir } from 'os'
 import { AgentSession } from './agentSession'
 import { startMcpServer } from './mcp'
 import { claudeAnswerEngine } from './responder'
+import { resolveActiveRoom } from './roomStore'
 
-const env = process.env
-const url = env.VIBEGROUP_RELAY_URL
-const room = env.VIBEGROUP_ROOM
-const token = env.VIBEGROUP_TOKEN
-if (!url || !room || !token) {
-  console.error('vibegroup: set VIBEGROUP_RELAY_URL, VIBEGROUP_ROOM, VIBEGROUP_TOKEN')
-  process.exit(1)
+// Resolve the room bound to this directory; the responder answers from that
+// room's project dir, so a session only speaks for the project it was started in.
+const active = resolveActiveRoom(homedir(), process.cwd())
+if (!active) {
+  console.error('vibegroup: no room active in this directory. Add one with `vibegroup add` here.')
+  process.exit(0)
 }
+
+const { url, room, token, name, dir } = active.entry
 const session = new AgentSession({
-  url, room, token, name: env.VIBEGROUP_NAME ?? 'vibegroup-agent',
-  engine: claudeAnswerEngine({ cwd: process.cwd(), model: env.VIBEGROUP_MODEL }), cwd: process.cwd(),
+  url, room, token, name,
+  engine: claudeAnswerEngine({ cwd: dir, model: process.env.VIBEGROUP_MODEL }),
+  cwd: dir,
 })
 await session.join()
 await startMcpServer(session)
